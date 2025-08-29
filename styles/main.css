@@ -107,11 +107,11 @@ body {
 
 .content-main {
     flex: 1;
-    padding: 32px;
+    padding: 20px;
     overflow: auto;
 }
 
-.bottom-panel {
+.all-sprites-panel {
     height: 125px;
     background: #f4f6fa;
     border-top: 1px solid #e0e0e0;

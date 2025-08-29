@@ -10,6 +10,16 @@ const initialShape = [
     fill: '#e4e6ff',
     stroke: '#007bff',
     'stroke-width': 6,
+  },
+  {
+    type: 'rect',
+    x: 78,
+    y: 170,
+    width: 100,
+    height: 50,
+    fill: '#e7c5a0ff',
+    stroke: '#ff9d00ff',
+    'stroke-width': 6,
   }
 ];
 
@@ -23,6 +33,19 @@ function createSVGElement(tag, attrs) {
 
 function renderInitialShapes() {
   const svg = document.querySelector('#main-svg');
+
+  // Add rect showing extent of SVG
+  const extentRect = createSVGElement('rect', {
+    x: 0.5,
+    y: 0.5,
+    width: 255,
+    height: 255,
+    fill: 'none',
+    stroke: '#ddd',
+    'stroke-width': 1,
+  });
+  svg.appendChild(extentRect);
+
   initialShape.forEach(shape => {
     const elem = createSVGElement(shape.type, shape);
     svg.appendChild(elem);
