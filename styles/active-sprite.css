@@ -1,3 +1,16 @@
 .active-sprite-container svg .elements {
-    cursor: pointer;
+  cursor: pointer;
+}
+
+.active-sprite-container svg #background-rect {
+  fill: #fff;
+  stroke: #ddd;
+  stroke-width: 1;
+}
+
+.active-sprite-container svg #selection-box {
+  fill: none;
+  stroke: blue;
+  stroke-dasharray: 4 2;
+  pointer-events: none;
 }

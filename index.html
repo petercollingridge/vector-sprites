@@ -19,10 +19,29 @@
 
         <div class="content">
             <div class="toolbar">
-                <span>Vector Sprites Toolbar</span>
+                <button title="Move">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2v20M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3M2 12h20M2 12l3-3M2 12l3 3M22 12l-3-3M22 12l-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button title="Scale">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M7 7h2v2M17 7h-2v2M17 17h-2v-2M7 17h2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <button title="Rotate">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2v4M12 2l3 3M12 2l-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </button>
             </div>
             <main class="active-sprite-container">
                 <svg id="main-svg" width="100%" height="100%" viewBox="0 0 256 256">
+                    <rect id="background-rect" x="0.5" y="0.5" width="255" height="255"/>
+                    <g id="sprite-elements"></g>
+                    <rect id="selection-box"></rect>
                 </svg>
             </main>
 

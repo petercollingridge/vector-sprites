@@ -1,8 +1,8 @@
-
+const SVG_NS = 'http://www.w3.org/2000/svg';
 let selectedElement = null;
 
 function createSVGElement(tag, attrs) {
-  const elem = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  const elem = document.createElementNS(SVG_NS, tag);
   for (const attr in attrs) {
     elem.setAttribute(attr, attrs[attr]);
   }
@@ -11,7 +11,27 @@ function createSVGElement(tag, attrs) {
 
 function selectElement(element) {
   selectedElement = element;
+  showSelectionBox(element)
   renderEditElementPanel(element);
+}
+
+function showSelectionBox(element) {
+  const selectionBox = document.getElementById('selection-box');
+  const bbox = element.getBBox();
+  selectionBox.setAttribute('x', bbox.x - 2);
+  selectionBox.setAttribute('y', bbox.y - 2);
+  selectionBox.setAttribute('width', bbox.width + 4);
+  selectionBox.setAttribute('height', bbox.height + 4);
+  selectionBox.style.display = 'block';
+}
+
+function deselectElement() {
+  selectedElement = null;
+  renderEditElementPanel(null);
+  const selectionBox = document.getElementById('selection-box');
+  if (selectionBox) {
+    selectionBox.style.display = 'none';
+  }
 }
 
 function constructSVG(svgElement, shapes) {
@@ -28,19 +48,12 @@ function constructSVG(svgElement, shapes) {
   });
 }
 
-function renderInitialShapes() {
-  const svg = document.querySelector('#main-svg');
+function initActiveSpritePanel() {
+  const backgroundRect = document.getElementById('background-rect');
+  backgroundRect.addEventListener('click', deselectElement);
+}
 
-  // Add rect showing extent of SVG
-  const extentRect = createSVGElement('rect', {
-    x: 0.5,
-    y: 0.5,
-    width: 255,
-    height: 255,
-    fill: 'none',
-    stroke: '#ddd',
-    'stroke-width': 1,
-  });
-  svg.appendChild(extentRect);
+function renderInitialShapes() {
+  const svg = document.querySelector('#sprite-elements');
   constructSVG(svg, initialShape);
 }
