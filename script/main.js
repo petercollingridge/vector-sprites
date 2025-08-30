@@ -26,40 +26,6 @@ function updateShapeFromForm(e) {
   renderInitialShapes();
 }
 
-function renderEditShapePanel(shape) {
-  const editElementDiv = document.getElementById('edit-element');
-  editElementDiv.innerHTML = '';
-
-  if (shape) {
-    const form = document.createElement('form');
-
-    for (const key in shape) {
-      const label = document.createElement('label');
-      label.textContent = key + ': ';
-      const input = document.createElement('input');
-      input.type = typeof shape[key] === 'number' ? 'number' : 'text';
-      input.value = shape[key];
-      input.id = key + '-input';
-      label.appendChild(input);
-      form.appendChild(label);
-    }
-
-    const button = document.createElement('button');
-    button.type = 'submit';
-    button.textContent = 'Update';
-    form.appendChild(button);
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      updateShapeFromForm(e);
-    });
-
-    editElementDiv.appendChild(form);
-  } else {
-    editElementDiv.textContent = 'Click on a shape to edit it';
-  }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   renderInitialShapes();
   renderEditShapePanel();

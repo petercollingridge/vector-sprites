@@ -1,4 +1,3 @@
-
 /* Sidebar form styling */
 .sidebar h2 {
     font-size: 1.1em;
@@ -6,39 +5,34 @@
     color: #222e3c;
 }
 
-.sidebar form {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 0 24px;
+.sidebar label {
+  display: flex;
+  align-items: center;
+  font-size: 1em;
+  color: #333;
+  margin-bottom: 2px;
 }
 
-.sidebar label {
-    display: flex;
-    align-items: center;
-    font-size: 0.98em;
-    color: #333;
-    margin-bottom: 2px;
+.sidebar input {
+  height: 30px;
+  width: 60px;
+  margin-left: auto;
 }
 
 .sidebar input[type="number"],
 .sidebar input[type="color"] {
-    margin-left: auto;
-    border: 1px solid #c0c6d1;
-    border-radius: 4px;
-    padding: 4px 6px;
-    font-size: 1em;
-    background: #fff;
-    width: 90px;
-    box-sizing: border-box;
+  border: 1px solid #c0c6d1;
+  border-radius: 4px;
+  font-size: 1em;
+  background: #fff;
+  box-sizing: border-box;
+  padding: 4px 6px;
 }
 
 .sidebar input[type="color"] {
-    padding: 0;
-    width: 36px;
-    height: 28px;
-    border: none;
-    background: none;
+  padding: 0;
+  border: none;
+  background: none;
 }
 
 .sidebar button[type="submit"] {
@@ -55,4 +49,3 @@
 .sidebar button[type="submit"]:hover {
     background: #005bb5;
 }
-

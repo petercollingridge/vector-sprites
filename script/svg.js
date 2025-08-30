@@ -11,7 +11,7 @@ function createSVGElement(tag, attrs) {
 
 function selectElement(element) {
   selectedElement = element;
-  renderEditShapePanel(element);
+  renderEditElementPanel(element);
 }
 
 function constructSVG(svgElement, shapes) {
