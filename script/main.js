@@ -1,58 +1,6 @@
 // script/main.js
 // Entry point for Vector Sprites scripts
 
-const initialShape = [
-  {
-    type: 'circle',
-    cx: 128,
-    cy: 128,
-    r: 50,
-    fill: '#e4e6ff',
-    stroke: '#007bff',
-    'stroke-width': 6,
-  },
-  {
-    type: 'rect',
-    x: 78,
-    y: 170,
-    width: 100,
-    height: 50,
-    fill: '#e7c5a0ff',
-    stroke: '#ff9d00ff',
-    'stroke-width': 6,
-  }
-];
-
-function createSVGElement(tag, attrs) {
-  const elem = document.createElementNS('http://www.w3.org/2000/svg', tag);
-  for (const attr in attrs) {
-    elem.setAttribute(attr, attrs[attr]);
-  }
-  return elem;
-}
-
-function renderInitialShapes() {
-  const svg = document.querySelector('#main-svg');
-
-  // Add rect showing extent of SVG
-  const extentRect = createSVGElement('rect', {
-    x: 0.5,
-    y: 0.5,
-    width: 255,
-    height: 255,
-    fill: 'none',
-    stroke: '#ddd',
-    'stroke-width': 1,
-  });
-  svg.appendChild(extentRect);
-
-  initialShape.forEach(shape => {
-    const elem = createSVGElement(shape.type, shape);
-    svg.appendChild(elem);
-  });
-}
-
-
 function populateForm() {
   const shape = initialShape[0];
   document.getElementById('cx-input').value = shape.cx;
@@ -78,8 +26,42 @@ function updateShapeFromForm(e) {
   renderInitialShapes();
 }
 
+function renderEditShapePanel(shape) {
+  const editElementDiv = document.getElementById('edit-element');
+  editElementDiv.innerHTML = '';
+
+  if (shape) {
+    const form = document.createElement('form');
+
+    for (const key in shape) {
+      const label = document.createElement('label');
+      label.textContent = key + ': ';
+      const input = document.createElement('input');
+      input.type = typeof shape[key] === 'number' ? 'number' : 'text';
+      input.value = shape[key];
+      input.id = key + '-input';
+      label.appendChild(input);
+      form.appendChild(label);
+    }
+
+    const button = document.createElement('button');
+    button.type = 'submit';
+    button.textContent = 'Update';
+    form.appendChild(button);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      updateShapeFromForm(e);
+    });
+
+    editElementDiv.appendChild(form);
+  } else {
+    editElementDiv.textContent = 'Click on a shape to edit it';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   renderInitialShapes();
-  populateForm();
-  document.getElementById('circle-form').addEventListener('submit', updateShapeFromForm);
+  renderEditShapePanel();
+  // populateForm();
 });

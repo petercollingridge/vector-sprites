@@ -1,41 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vector Sprites</title>
+    <link rel="stylesheet" href="styles/layout.css">
+    <link rel="stylesheet" href="styles/active-sprite.css">
     <link rel="stylesheet" href="styles/main.css">
 </head>
+
 <body>
     <div class="app-container">
-        <div class="toolbar">
-            <span>Vector Sprites Toolbar</span>
+        <div class="sidebar">
+            <h2>Edit shapes</h2>
+            <div id="edit-element"></div>
         </div>
-        <div class="main-content">
-            <div class="sidebar">
-                <h2>Edit Circle Properties</h2>
-                <form id="circle-form">
-                    <label>cx: <input type="number" name="cx" id="cx-input" min="0" max="255"></label>
-                    <label>cy: <input type="number" name="cy" id="cy-input" min="0" max="255"></label>
-                    <label>r: <input type="number" name="r" id="r-input" min="1" max="255"></label>
-                    <label>Fill: <input type="color" name="fill" id="fill-input"></label>
-                    <label>Stroke: <input type="color" name="stroke" id="stroke-input"></label>
-                    <label>Stroke Width: <input type="number" name="stroke-width" id="stroke-width-input" min="1" max="20"></label>
-                    <button type="submit">Update</button>
-                </form>
+
+        <div class="content">
+            <div class="toolbar">
+                <span>Vector Sprites Toolbar</span>
             </div>
-            <div class="content">
-                <main class="content-main">
-                    <svg id="main-svg" width="100%" height="100%" viewBox="0 0 256 256">
-                    </svg>
-                </main>
-                <div class="all-sprites-panel">
-                    
-                </div>
-            </div>
+            <main class="active-sprite-container">
+                <svg id="main-svg" width="100%" height="100%" viewBox="0 0 256 256">
+                </svg>
+            </main>
+
+            <div class="all-sprites-panel"></div>
         </div>
     </div>
 
+    <script src="script/initialShape.js"></script>
+    <script src="script/svg.js"></script>
     <script src="script/main.js"></script>
 </body>
 </html>
