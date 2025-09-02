@@ -30,16 +30,6 @@ body {
     /* overflow: hidden; */
 }
 
-.toolbar {
-    background: #222e3c;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    padding: 5px;
-    font-size: 1.2em;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-}
-
 .active-sprite-container {
     display: flex;
     flex: 1;

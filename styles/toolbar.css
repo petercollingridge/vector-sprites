@@ -1,0 +1,22 @@
+.toolbar {
+    background: #222e3c;
+    color: #fff;
+    padding: 5px;
+}
+
+.toolbar-title {
+    font-size: 18px;
+    margin: 0;
+    padding: 0 8px;
+    display: inline-block;
+}
+
+.toolbar button.selected {
+    background: #fff;
+    color: #222e3c;
+    border: 2px solid #007bff;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    outline: none;
+    transition: background 0.15s, color 0.15s, border 0.15s;
+}

@@ -1,36 +1,63 @@
 const SVG_NS = 'http://www.w3.org/2000/svg';
+const SPRITE_ELEMENTS_GROUP = document.querySelector('#sprite-elements');
+
 let selectedElement = null;
 let dragOffset = false;
 
 function createSVGElement(tag, attrs) {
   const elem = document.createElementNS(SVG_NS, tag);
   for (const attr in attrs) {
-    elem.setAttribute(attr, attrs[attr]);
+    if (attr !== 'type') {
+      elem.setAttribute(attr, attrs[attr]);
+    }
   }
   return elem;
 }
 
-function constructSVG(svgElement, shapes) {
-  const elementGroup = createSVGElement('g', { 'class': 'elements' });
-  svgElement.appendChild(elementGroup);
-
-  shapes.forEach(shape => {
-    const elem = createSVGElement(shape.type, shape);
-    elem.addEventListener('mousedown', (event) => {
+function createEditableElement(tag, attrs) {
+  const elem = createSVGElement(tag, attrs);
+  elem.addEventListener('mousedown', (event) => {
+    if (toolbarMode === 'Move') {
       selectElement(elem);
       startDrag(event);
       event.stopPropagation();
-    });
-    elementGroup.appendChild(elem);
+    }
+  });
+  SPRITE_ELEMENTS_GROUP.appendChild(elem);
+}
+
+
+function constructSVG(shapes) {
+  console.log(shapes)
+  shapes.forEach((shape) => {
+    console.log(shape.type, shape);
+    createEditableElement(shape.type, shape);
   });
 }
 
+function getClickCoords(event) {
+  // Convert mouse coordinates to SVG coordinates
+  const svg = document.querySelector('#main-svg');
+  const pt = svg.createSVGPoint();
+  pt.x = event.clientX;
+  pt.y = event.clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+
+function mouseDownOnSVG(event) {
+  if (toolbarMode === 'Add rectangle') {
+    addRect(event);
+  }
+}
+
 function selectElement(element) {
-  deselectCurrentElement();
-  selectedElement = element;
-  selectedElement.style.cursor = 'move';
-  showSelectionBox(element)
-  renderEditElementPanel(element);
+  if (toolbarMode === 'Move') {
+    deselectCurrentElement();
+    selectedElement = element;
+    selectedElement.style.cursor = 'move';
+    showSelectionBox(element)
+    renderEditElementPanel(element);
+  }
 }
 
 function deselectCurrentElement() {
@@ -73,6 +100,7 @@ function showSelectionBox(element) {
 }
 
 function startDrag(event) {
+  if (!selectedElement) return;
   dragOffset = { x: event.clientX, y: event.clientY };
 
   // Get all the transforms currently on this element
@@ -107,9 +135,9 @@ function initActiveSpritePanel() {
   const svg = document.querySelector('#main-svg');
   svg.addEventListener('mousemove', dragSelectedElement);
   svg.addEventListener('mouseup', () => { dragOffset = false; });
+  svg.addEventListener('mousedown', mouseDownOnSVG);
 }
 
 function renderInitialShapes() {
-  const elementContainer = document.querySelector('#sprite-elements');
-  constructSVG(elementContainer, initialShape);
+  constructSVG(initialShape);
 }

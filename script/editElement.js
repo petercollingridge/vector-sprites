@@ -28,41 +28,44 @@ const PARSE_STYLE_PROP = {
   }
 };
 
+function createEditableStyle(editorDiv, prop, value) {
+  // Create input element for editing
+  const input = document.createElement('input');
+  input.type = prop.type;
+  input.value = PARSE_STYLE_PROP[prop.type](value);
+  input.id = prop.name + '-input';
+
+  input.addEventListener('input', (e) => {
+    let newValue = e.target.value;
+    // For number types, ensure value is a valid number
+    if (prop.type === 'number') {
+      newValue = parseFloat(newValue);
+      if (isNaN(newValue)) return;
+    }
+    element.setAttribute(prop.name, newValue);
+  });
+
+  // Create label for input
+  const label = document.createElement('label');
+  label.textContent = prop.name + ': ';
+  label.appendChild(input);
+  editorDiv.appendChild(label);
+}
+
 // When a shape is selected, render its properties in the edit panel
 function renderEditElementPanel(element) {
-  const editElementDiv = document.getElementById('edit-element');
-  editElementDiv.innerHTML = '';
+  const editorDiv = document.getElementById('edit-element');
+  editorDiv.innerHTML = '';
 
   if (element && element instanceof SVGElement) {
     const computedStyle = window.getComputedStyle(element);
 
     STYLE_PROPS_LIST.forEach(prop => {
       const value = computedStyle.getPropertyValue(prop.name);
-
-      // Create input element for editing
-      const input = document.createElement('input');
-      input.type = prop.type;
-      input.value = PARSE_STYLE_PROP[prop.type](value);
-      input.id = prop.name + '-input';
-
-      input.addEventListener('input', (e) => {
-        let newValue = e.target.value;
-        // For number types, ensure value is a valid number
-        if (prop.type === 'number') {
-          newValue = parseFloat(newValue);
-          if (isNaN(newValue)) return;
-        }
-        element.setAttribute(prop.name, newValue);
-      });
-
-      // Create label for input
-      const label = document.createElement('label');
-      label.textContent = prop.name + ': ';
-      label.appendChild(input);
-      editElementDiv.appendChild(label);
+      createEditableStyle(editorDiv, prop, value);
     });
 
   } else {
-    editElementDiv.textContent = 'Click on a shape to edit it';
+    editorDiv.textContent = 'Click on a shape to edit it';
   }
 }
