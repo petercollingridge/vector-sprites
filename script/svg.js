@@ -14,8 +14,9 @@ function createSVGElement(tag, attrs) {
   return elem;
 }
 
-function createEditableElement(tag, attrs) {
+function createEditableElement({tag, ...attrs}) {
   const elem = createSVGElement(tag, attrs);
+
   elem.addEventListener('mousedown', (event) => {
     if (toolbarMode === 'Move') {
       selectElement(elem);
@@ -28,11 +29,7 @@ function createEditableElement(tag, attrs) {
 
 
 function constructSVG(shapes) {
-  console.log(shapes)
-  shapes.forEach((shape) => {
-    console.log(shape.type, shape);
-    createEditableElement(shape.type, shape);
-  });
+  shapes.forEach(createEditableElement);
 }
 
 function getClickCoords(event) {

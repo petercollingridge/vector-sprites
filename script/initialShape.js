@@ -1,6 +1,6 @@
 const initialShape = [
   {
-    type: 'circle',
+    tag: 'circle',
     cx: 128,
     cy: 128,
     r: 50,
@@ -9,7 +9,7 @@ const initialShape = [
     'stroke-width': 6,
   },
   {
-    type: 'rect',
+    tag: 'rect',
     x: 78,
     y: 170,
     width: 100,

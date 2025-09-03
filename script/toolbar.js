@@ -24,11 +24,12 @@ function initToolbar() {
 
 function addRect(event) {
   const coords = getClickCoords(event);
-  createEditableElement('rect', {
+  createEditableElement({
+    tag: 'rect',
     x: coords.x - 30,
     y: coords.y - 30,
-        width: 60,
-        height: 60,
-      ...newShapeStyles,
-    });
+    width: 60,
+    height: 60,
+    ...newShapeStyles,
+  });
 }
