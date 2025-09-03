@@ -1,3 +1,7 @@
+.active-sprite-container svg {
+  margin: auto;
+}
+
 .active-sprite-container svg .elements {
   cursor: pointer;
 }
