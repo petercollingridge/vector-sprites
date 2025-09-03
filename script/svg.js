@@ -42,8 +42,9 @@ function getClickCoords(event) {
 }
 
 function mouseDownOnSVG(event) {
-  if (toolbarMode === 'Add rectangle') {
-    addRect(event);
+  const addShape = addShapes[toolbarMode];
+  if (addShape) {
+    addShape(event);
   }
 }
 

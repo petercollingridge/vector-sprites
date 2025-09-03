@@ -33,3 +33,20 @@ function addRect(event) {
     ...newShapeStyles,
   });
 }
+
+function addEllipse(event) {
+  const coords = getClickCoords(event);
+  createEditableElement({
+    tag: 'ellipse',
+    cx: coords.x,
+    cy: coords.y,
+    rx: 30,
+    ry: 20,
+    ...newShapeStyles,
+  });
+}
+
+const addShapes = {
+  'Add rectangle': addRect,
+  'Add ellipse': addEllipse
+};
