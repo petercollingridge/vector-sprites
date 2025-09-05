@@ -28,7 +28,7 @@ const PARSE_STYLE_PROP = {
   }
 };
 
-function createEditableStyle(editorDiv, prop, value) {
+function createEditableStyle(editorDiv, element, prop, value) {
   // Create input element for editing
   const input = document.createElement('input');
   input.type = prop.type;
@@ -62,7 +62,7 @@ function renderEditElementPanel(element) {
 
     STYLE_PROPS_LIST.forEach(prop => {
       const value = computedStyle.getPropertyValue(prop.name);
-      createEditableStyle(editorDiv, prop, value);
+      createEditableStyle(editorDiv, element, prop, value);
     });
 
   } else {
