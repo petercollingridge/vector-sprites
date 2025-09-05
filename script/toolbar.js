@@ -46,7 +46,20 @@ function addEllipse(event) {
   });
 }
 
+function addLine(event) {
+  const coords = getClickCoords(event);
+  createEditableElement({
+    tag: 'line',
+    x1: coords.x - 30,
+    y1: coords.y,
+    x2: coords.x + 30,
+    y2: coords.y,
+    ...newShapeStyles,
+  });
+}
+
 const addShapes = {
   'Add rectangle': addRect,
-  'Add ellipse': addEllipse
+  'Add ellipse': addEllipse,
+  'Add line': addLine
 };
