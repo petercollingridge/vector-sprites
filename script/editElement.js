@@ -61,12 +61,35 @@ function renderEditElementPanel(element) {
   if (element && element instanceof SVGElement) {
     const computedStyle = window.getComputedStyle(element);
 
+    // Delete element button
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'delete-btn';
+    deleteButton.textContent = 'Delete Element';
+    deleteButton.addEventListener('click', () => {
+      deselectElement();
+      element.remove();
+      emptyEditElementPanel();
+    });
+    editorDiv.appendChild(deleteButton);
+
+    // Header
+    const header = document.createElement('h3');
+    header.textContent = 'Styles';
+    editorDiv.appendChild(header);
+
+    // Edit styles
     STYLE_PROPS_LIST.forEach(prop => {
       const value = computedStyle.getPropertyValue(prop.name);
       createEditableStyle(editorDiv, element, prop, value);
     });
 
   } else {
-    editorDiv.textContent = 'Click on a shape to edit it';
+    emptyEditElementPanel();
   }
+}
+
+function emptyEditElementPanel() {
+  const editorDiv = document.getElementById('edit-element');
+  editorDiv.innerHTML = '';
+  editorDiv.textContent = 'Click on a shape to edit it';
 }

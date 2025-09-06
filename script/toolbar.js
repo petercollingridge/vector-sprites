@@ -64,6 +64,7 @@ function addPolyline(event) {
     tag: 'polyline',
     points: `${coords.x - 30},${coords.y - 30} ${coords.x + 30},${coords.y - 30} ${coords.x - 30},${coords.y + 30} ${coords.x + 30},${coords.y + 30}`,
     ...newShapeStyles,
+    'fill-opacity': 0,
   });
 }
 

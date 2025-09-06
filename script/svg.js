@@ -58,16 +58,18 @@ function selectElement(element) {
   }
 }
 
+// Called when selecting a different element
 function deselectCurrentElement() {
   if (selectedElement) {
     selectedElement.style.cursor = 'pointer';
   }
 }
 
+// Called when deselecting all elements
 function deselectElement() {
   deselectCurrentElement();
   selectedElement = null;
-  renderEditElementPanel(null);
+  emptyEditElementPanel();
 
   const selectionBox = document.getElementById('selection-box');
   if (selectionBox) {
