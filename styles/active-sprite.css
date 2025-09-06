@@ -1,18 +1,21 @@
-.active-sprite-container svg {
+#main-svg {
   margin: auto;
+  height: 100%;
+  max-height: 256px;
+  width: 256px;
 }
 
-.active-sprite-container svg .elements {
+#main-svg .elements {
   cursor: pointer;
 }
 
-.active-sprite-container svg #background-rect {
+#main-svg #background-rect {
   fill: #fff;
   stroke: #ddd;
   stroke-width: 1;
 }
 
-.active-sprite-container svg #selection-box {
+#main-svg #selection-box {
   fill: none;
   stroke: blue;
   stroke-dasharray: 4 2;
