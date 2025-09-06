@@ -21,6 +21,7 @@
   padding: 3px 5px;
   display: inline-flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .toolbar button:hover {

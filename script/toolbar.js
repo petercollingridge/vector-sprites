@@ -58,8 +58,18 @@ function addLine(event) {
   });
 }
 
+function addPolyline(event) {
+  const coords = getClickCoords(event);
+  createEditableElement({
+    tag: 'polyline',
+    points: `${coords.x - 30},${coords.y - 30} ${coords.x + 30},${coords.y - 30} ${coords.x - 30},${coords.y + 30} ${coords.x + 30},${coords.y + 30}`,
+    ...newShapeStyles,
+  });
+}
+
 const addShapes = {
   'Add rectangle': addRect,
   'Add ellipse': addEllipse,
-  'Add line': addLine
+  'Add line': addLine,
+  'Add polyline': addPolyline,
 };
