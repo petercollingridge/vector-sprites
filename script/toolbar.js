@@ -39,8 +39,8 @@ function addEllipse(event) {
     tag: 'ellipse',
     cx: coords.x,
     cy: coords.y,
-    rx: 30,
-    ry: 20,
+    rx: 0,
+    ry: 0,
     ...newShapeStyles,
   });
 }

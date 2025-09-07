@@ -69,6 +69,15 @@ function deselectElement() {
   }
 }
 
+// Update the selected element with a dict of attributes
+function updateSelectedElement(attrs) {
+  if (selectedElement) {
+    for (const key in attrs) {
+      selectedElement.setAttribute(key, attrs[key]);
+    }
+  }
+}
+
 function showSelectionBox(element) {
   const selectionBox = document.getElementById('selection-box');
   // Get the bounding box in local coordinates
@@ -120,7 +129,7 @@ function dragSelectedElement(event) {
   }
 }
 
-function scaleSelectedElement(event) {
+function scaleRect(event) {
   if (selectedElement && dragOffset) {
     const currentPosition = { x: event.clientX, y: event.clientY };
     const x = Math.min(dragOffset.x, currentPosition.x);
@@ -128,10 +137,29 @@ function scaleSelectedElement(event) {
     const pos = clientToSVGCoords(x, y);
     const width = Math.abs(currentPosition.x - dragOffset.x);
     const height = Math.abs(currentPosition.y - dragOffset.y);
-    selectedElement.setAttribute('x', pos.x);
-    selectedElement.setAttribute('y', pos.y);
-    selectedElement.setAttribute('width', width);
-    selectedElement.setAttribute('height', height);
+    updateSelectedElement({
+      x: pos.x,
+      y: pos.y,
+      width: width,
+      height: height
+    });
+  }
+}
+
+function scaleEllipse(event) {
+  if (selectedElement && dragOffset) {
+    const currentPosition = { x: event.clientX, y: event.clientY };
+    const x = Math.min(dragOffset.x, currentPosition.x);
+    const y = Math.min(dragOffset.y, currentPosition.y);
+    const width = Math.abs(currentPosition.x - dragOffset.x);
+    const height = Math.abs(currentPosition.y - dragOffset.y);
+    const pos = clientToSVGCoords(x + width / 2, y + height / 2);
+    updateSelectedElement({
+      cx: pos.x,
+      cy: pos.y,
+      rx: width / 2,
+      ry: height / 2
+    });
   }
 }
 
@@ -143,11 +171,17 @@ function mouseDownOnSVG(event) {
   }
 }
 
+const mouseMoveOnSVGFuncs = {
+  'Move': dragSelectedElement,
+  'Add rectangle': scaleRect,
+  'Add ellipse': scaleEllipse,
+  // 'Add polyline': scaleSelectedElement,
+};
+
 function mouseMoveOnSVG(event) {
-  if (toolbarMode === 'Move') {
-    dragSelectedElement(event);
-  } else if (toolbarMode === 'Add rectangle') {
-    scaleSelectedElement(event);
+  const mouseMoveFunc = mouseMoveOnSVGFuncs[toolbarMode];
+  if (mouseMoveFunc) {
+    mouseMoveFunc(event);
   }
 }
 
