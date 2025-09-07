@@ -45,18 +45,6 @@ function addEllipse(event) {
   });
 }
 
-function addLine(event) {
-  const coords = eventToSVGCoords(event);
-  return createEditableElement({
-    tag: 'line',
-    x1: coords.x - 30,
-    y1: coords.y,
-    x2: coords.x + 30,
-    y2: coords.y,
-    ...newShapeStyles,
-  });
-}
-
 function addPolyline(event) {
   const coords = eventToSVGCoords(event);
   toolbarMode = 'Adding polyline';
@@ -162,7 +150,6 @@ function addPolylinePoint(event) {
 const mouseDownFunctions = {
   'Add rectangle': addRect,
   'Add ellipse': addEllipse,
-  'Add line': addLine,
   'Add polyline': addPolyline,
 };
 
