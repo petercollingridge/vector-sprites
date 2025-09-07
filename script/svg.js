@@ -100,99 +100,14 @@ function showSelectionBox(element) {
   selectionBox.style.display = 'block';
 }
 
-function startDrag(event) {
-  if (!selectedElement) return;
-  dragOffset = { x: event.clientX, y: event.clientY };
-
-  // Get all the transforms currently on this element
-  const transforms = selectedElement.transform.baseVal;
-  // Ensure the first transform is a translate transform
-  if (transforms.length === 0 ||
-      transforms.getItem(0).type !== SVGTransform.SVG_TRANSFORM_TRANSLATE) {
-    // Create an transform that translates by (0, 0)
-    const translate = selectedElement.ownerSVGElement.createSVGTransform();
-    translate.setTranslate(0, 0);
-    // Add the translation to the front of the transforms list
-    selectedElement.transform.baseVal.insertItemBefore(translate, 0);
-  } else {
-    const matrix = transforms.getItem(0).matrix;
-    dragOffset.x -= matrix.e;
-    dragOffset.y -= matrix.f;
-  }
-}
-
-function dragSelectedElement(event) {
-  if (selectedElement && dragOffset) {
-    const transform = selectedElement.transform.baseVal.getItem(0);
-    transform.setTranslate(event.clientX - dragOffset.x, event.clientY - dragOffset.y);
-    showSelectionBox(selectedElement);
-  }
-}
-
-function scaleRect(event) {
-  if (selectedElement && dragOffset) {
-    const currentPosition = { x: event.clientX, y: event.clientY };
-    const x = Math.min(dragOffset.x, currentPosition.x);
-    const y = Math.min(dragOffset.y, currentPosition.y);
-    const pos = clientToSVGCoords(x, y);
-    const width = Math.abs(currentPosition.x - dragOffset.x);
-    const height = Math.abs(currentPosition.y - dragOffset.y);
-    updateSelectedElement({
-      x: pos.x,
-      y: pos.y,
-      width: width,
-      height: height
-    });
-  }
-}
-
-function scaleEllipse(event) {
-  if (selectedElement && dragOffset) {
-    const currentPosition = { x: event.clientX, y: event.clientY };
-    const x = Math.min(dragOffset.x, currentPosition.x);
-    const y = Math.min(dragOffset.y, currentPosition.y);
-    const width = Math.abs(currentPosition.x - dragOffset.x);
-    const height = Math.abs(currentPosition.y - dragOffset.y);
-    const pos = clientToSVGCoords(x + width / 2, y + height / 2);
-    updateSelectedElement({
-      cx: pos.x,
-      cy: pos.y,
-      rx: width / 2,
-      ry: height / 2
-    });
-  }
-}
-
-function mouseDownOnSVG(event) {
-  const addShape = addShapes[toolbarMode];
-  if (addShape) {
-    selectedElement = addShape(event);
-    dragOffset = { x: event.clientX, y: event.clientY };
-  }
-}
-
-const mouseMoveOnSVGFuncs = {
-  'Move': dragSelectedElement,
-  'Add rectangle': scaleRect,
-  'Add ellipse': scaleEllipse,
-  // 'Add polyline': scaleSelectedElement,
-};
-
-function mouseMoveOnSVG(event) {
-  const mouseMoveFunc = mouseMoveOnSVGFuncs[toolbarMode];
-  if (mouseMoveFunc) {
-    mouseMoveFunc(event);
-  }
-}
-
 function addActiveSpritePanelEventHandlers() {
   const backgroundRect = document.getElementById('background-rect');
   backgroundRect.addEventListener('click', deselectElement);
   
   const svg = document.querySelector('#main-svg');
-  svg.addEventListener('mousemove', mouseMoveOnSVG);
-  svg.addEventListener('mouseup', () => { dragOffset = false; });
   svg.addEventListener('mousedown', mouseDownOnSVG);
+  svg.addEventListener('mousemove', mouseMoveOnSVG);
+  svg.addEventListener('mouseup', mouseUpOnSVG);
 }
 
 function renderInitialShapes() {

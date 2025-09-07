@@ -59,17 +59,123 @@ function addLine(event) {
 
 function addPolyline(event) {
   const coords = eventToSVGCoords(event);
+  toolbarMode = 'Adding polyline';
   return createEditableElement({
     tag: 'polyline',
-    points: `${coords.x - 30},${coords.y - 30} ${coords.x + 30},${coords.y - 30} ${coords.x - 30},${coords.y + 30} ${coords.x + 30},${coords.y + 30}`,
+    points: `${coords.x},${coords.y} ${coords.x},${coords.y}`,
     ...newShapeStyles,
     'fill-opacity': 0,
   });
 }
 
-const addShapes = {
+function startDrag(event) {
+  if (!selectedElement) return;
+  dragOffset = { x: event.clientX, y: event.clientY };
+
+  // Get all the transforms currently on this element
+  const transforms = selectedElement.transform.baseVal;
+  // Ensure the first transform is a translate transform
+  if (transforms.length === 0 ||
+      transforms.getItem(0).type !== SVGTransform.SVG_TRANSFORM_TRANSLATE) {
+    // Create an transform that translates by (0, 0)
+    const translate = selectedElement.ownerSVGElement.createSVGTransform();
+    translate.setTranslate(0, 0);
+    // Add the translation to the front of the transforms list
+    selectedElement.transform.baseVal.insertItemBefore(translate, 0);
+  } else {
+    const matrix = transforms.getItem(0).matrix;
+    dragOffset.x -= matrix.e;
+    dragOffset.y -= matrix.f;
+  }
+}
+
+function dragSelectedElement(event) {
+  if (selectedElement && dragOffset) {
+    const transform = selectedElement.transform.baseVal.getItem(0);
+    transform.setTranslate(event.clientX - dragOffset.x, event.clientY - dragOffset.y);
+    showSelectionBox(selectedElement);
+  }
+}
+
+function scaleRect(event) {
+  if (selectedElement && dragOffset) {
+    const currentPosition = { x: event.clientX, y: event.clientY };
+    const x = Math.min(dragOffset.x, currentPosition.x);
+    const y = Math.min(dragOffset.y, currentPosition.y);
+    const pos = clientToSVGCoords(x, y);
+    const width = Math.abs(currentPosition.x - dragOffset.x);
+    const height = Math.abs(currentPosition.y - dragOffset.y);
+    updateSelectedElement({
+      x: pos.x,
+      y: pos.y,
+      width: width,
+      height: height
+    });
+  }
+}
+
+function scaleEllipse(event) {
+  if (selectedElement && dragOffset) {
+    const currentPosition = { x: event.clientX, y: event.clientY };
+    const x = Math.min(dragOffset.x, currentPosition.x);
+    const y = Math.min(dragOffset.y, currentPosition.y);
+    const width = Math.abs(currentPosition.x - dragOffset.x);
+    const height = Math.abs(currentPosition.y - dragOffset.y);
+    const pos = clientToSVGCoords(x + width / 2, y + height / 2);
+    updateSelectedElement({
+      cx: pos.x,
+      cy: pos.y,
+      rx: width / 2,
+      ry: height / 2
+    });
+  }
+}
+
+function movePolylinePoint(event) {
+  if (selectedElement && dragOffset) {
+    const currentPosition = { x: event.clientX, y: event.clientY };
+    const points = selectedElement.getAttribute('points').trim().split(' ');
+    const lastPoint = points[points.length - 1].split(',').map(Number);
+    const dx = currentPosition.x - lastPoint[0];
+    const dy = currentPosition.y - lastPoint[1];
+    const newPoints = points.map(point => {
+      const [x, y] = point.split(',').map(Number);
+      return `${x + dx},${y + dy}`;
+    });
+    selectedElement.setAttribute('points', newPoints.join(' '));
+  }
+}
+
+const mouseDownFunctions = {
   'Add rectangle': addRect,
   'Add ellipse': addEllipse,
   'Add line': addLine,
   'Add polyline': addPolyline,
 };
+
+
+const mouseMoveFunctions = {
+  'Move': dragSelectedElement,
+  'Add rectangle': scaleRect,
+  'Add ellipse': scaleEllipse,
+  'Adding polyline': movePolylinePoint,
+};
+
+function mouseDownOnSVG(event) {
+  const func = mouseDownFunctions[toolbarMode];
+  if (func) {
+    selectedElement = func(event);
+    dragOffset = { x: event.clientX, y: event.clientY };
+  }
+}
+
+function mouseMoveOnSVG(event) {
+  const func = mouseMoveFunctions[toolbarMode];
+  if (func) {
+    func(event);
+  }
+}
+
+function mouseUpOnSVG(event) {
+  dragOffset = false;
+}
