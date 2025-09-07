@@ -1,13 +1,3 @@
-// List of styles that can be edited
-
-const STYLE_PROPS_LIST = [
-  {name: 'fill', type: 'color'},
-  {name: 'stroke', type: 'color'},
-  {name: 'stroke-width', type: 'number'},
-  {name: 'opacity', type: 'number'},  
-  {name: 'fill-opacity', type: 'number'}
-];
-
 const PARSE_STYLE_PROP = {
   'number': parseFloat,
   'color': value => {

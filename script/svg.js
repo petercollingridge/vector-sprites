@@ -1,9 +1,3 @@
-const SVG_NS = 'http://www.w3.org/2000/svg';
-const SPRITE_ELEMENTS_GROUP = document.querySelector('#sprite-elements');
-
-let selectedElement = null;
-let dragOffset = false;
-
 function createSVGElement(tag, attrs) {
   const elem = document.createElementNS(SVG_NS, tag);
   for (const attr in attrs) {
@@ -15,16 +9,17 @@ function createSVGElement(tag, attrs) {
 }
 
 function createEditableElement({tag, ...attrs}) {
-  const elem = createSVGElement(tag, attrs);
+  const element = createSVGElement(tag, attrs);
 
-  elem.addEventListener('mousedown', (event) => {
+  element.addEventListener('mousedown', (event) => {
     if (toolbarMode === 'Move') {
-      selectElement(elem);
+      selectElement(element);
       startDrag(event);
       event.stopPropagation();
     }
   });
-  SPRITE_ELEMENTS_GROUP.appendChild(elem);
+  SPRITE_ELEMENTS_GROUP.appendChild(element);
+  return element;
 }
 
 
@@ -32,20 +27,17 @@ function constructSVG(shapes) {
   shapes.forEach(createEditableElement);
 }
 
-function getClickCoords(event) {
-  // Convert mouse coordinates to SVG coordinates
+// Convert mouse event.client coordinates to SVG coordinates
+function clientToSVGCoords(x, y) {
   const svg = document.querySelector('#main-svg');
   const pt = svg.createSVGPoint();
-  pt.x = event.clientX;
-  pt.y = event.clientY;
+  pt.x = x;
+  pt.y = y;
   return pt.matrixTransform(svg.getScreenCTM().inverse());
 }
 
-function mouseDownOnSVG(event) {
-  const addShape = addShapes[toolbarMode];
-  if (addShape) {
-    addShape(event);
-  }
+function eventToSVGCoords(event) {
+  return clientToSVGCoords(event.clientX, event.clientY);
 }
 
 function selectElement(element) {
@@ -128,12 +120,43 @@ function dragSelectedElement(event) {
   }
 }
 
-function initActiveSpritePanel() {
+function scaleSelectedElement(event) {
+  if (selectedElement && dragOffset) {
+    const currentPosition = { x: event.clientX, y: event.clientY };
+    const x = Math.min(dragOffset.x, currentPosition.x);
+    const y = Math.min(dragOffset.y, currentPosition.y);
+    const pos = clientToSVGCoords(x, y);
+    const width = Math.abs(currentPosition.x - dragOffset.x);
+    const height = Math.abs(currentPosition.y - dragOffset.y);
+    selectedElement.setAttribute('x', pos.x);
+    selectedElement.setAttribute('y', pos.y);
+    selectedElement.setAttribute('width', width);
+    selectedElement.setAttribute('height', height);
+  }
+}
+
+function mouseDownOnSVG(event) {
+  const addShape = addShapes[toolbarMode];
+  if (addShape) {
+    selectedElement = addShape(event);
+    dragOffset = { x: event.clientX, y: event.clientY };
+  }
+}
+
+function mouseMoveOnSVG(event) {
+  if (toolbarMode === 'Move') {
+    dragSelectedElement(event);
+  } else if (toolbarMode === 'Add rectangle') {
+    scaleSelectedElement(event);
+  }
+}
+
+function addActiveSpritePanelEventHandlers() {
   const backgroundRect = document.getElementById('background-rect');
   backgroundRect.addEventListener('click', deselectElement);
   
   const svg = document.querySelector('#main-svg');
-  svg.addEventListener('mousemove', dragSelectedElement);
+  svg.addEventListener('mousemove', mouseMoveOnSVG);
   svg.addEventListener('mouseup', () => { dragOffset = false; });
   svg.addEventListener('mousedown', mouseDownOnSVG);
 }

@@ -1,4 +1,3 @@
-let toolbarMode = 'move';
 const newShapeStyles = {
     fill: 'white',
     stroke: 'black',
@@ -23,20 +22,20 @@ function initToolbar() {
 }
 
 function addRect(event) {
-  const coords = getClickCoords(event);
-  createEditableElement({
+  const coords = clientToSVGCoords(event);
+  return createEditableElement({
     tag: 'rect',
-    x: coords.x - 30,
-    y: coords.y - 30,
-    width: 60,
-    height: 60,
+    x: coords.x,
+    y: coords.y,
+    width: 0,
+    height: 0,
     ...newShapeStyles,
   });
 }
 
 function addEllipse(event) {
-  const coords = getClickCoords(event);
-  createEditableElement({
+  const coords = eventToSVGCoords(event);
+  return createEditableElement({
     tag: 'ellipse',
     cx: coords.x,
     cy: coords.y,
@@ -47,8 +46,8 @@ function addEllipse(event) {
 }
 
 function addLine(event) {
-  const coords = getClickCoords(event);
-  createEditableElement({
+  const coords = eventToSVGCoords(event);
+  return createEditableElement({
     tag: 'line',
     x1: coords.x - 30,
     y1: coords.y,
@@ -59,8 +58,8 @@ function addLine(event) {
 }
 
 function addPolyline(event) {
-  const coords = getClickCoords(event);
-  createEditableElement({
+  const coords = eventToSVGCoords(event);
+  return createEditableElement({
     tag: 'polyline',
     points: `${coords.x - 30},${coords.y - 30} ${coords.x + 30},${coords.y - 30} ${coords.x - 30},${coords.y + 30} ${coords.x + 30},${coords.y + 30}`,
     ...newShapeStyles,
