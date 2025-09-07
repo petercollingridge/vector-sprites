@@ -62,7 +62,7 @@ function addPolyline(event) {
   toolbarMode = 'Adding polyline';
   return createEditableElement({
     tag: 'polyline',
-    points: `${coords.x},${coords.y} ${coords.x},${coords.y}`,
+    points: `${coords.x},${coords.y}`,
     ...newShapeStyles,
     'fill-opacity': 0,
   });
@@ -132,17 +132,30 @@ function scaleEllipse(event) {
 }
 
 function movePolylinePoint(event) {
-  if (selectedElement && dragOffset) {
-    const currentPosition = { x: event.clientX, y: event.clientY };
-    const points = selectedElement.getAttribute('points').trim().split(' ');
-    const lastPoint = points[points.length - 1].split(',').map(Number);
-    const dx = currentPosition.x - lastPoint[0];
-    const dy = currentPosition.y - lastPoint[1];
-    const newPoints = points.map(point => {
-      const [x, y] = point.split(',').map(Number);
-      return `${x + dx},${y + dy}`;
-    });
-    selectedElement.setAttribute('points', newPoints.join(' '));
+  if (selectedElement) {
+    const coords = eventToSVGCoords(event);
+    const fixedPoints = selectedElement.getAttribute('points').trim().split(' ').slice(0, -1);
+    selectedElement.setAttribute('points', `${fixedPoints.join(' ')} ${coords.x},${coords.y}`);
+  }
+}
+
+function addPolylinePoint(event) {
+  if (selectedElement) {
+    const points = selectedElement.getAttribute('points').trim();
+    const pointsArr = points.split(' ');
+    const [x1, y1] = pointsArr[pointsArr.length - 1].split(',').map(Number);
+
+    // If last two points very close then stop drawing line
+    if (pointsArr.length > 1) {
+      const [x2, y2] = pointsArr[pointsArr.length - 2].split(',').map(Number);
+      const dist = Math.hypot(x2 - x1, y2 - y1);
+      if (dist < 3) {
+        toolbarMode = 'Add polyline';
+        return;
+      }
+    }
+
+    selectedElement.setAttribute('points', `${points} ${x1},${y1}`);
   }
 }
 
@@ -152,7 +165,6 @@ const mouseDownFunctions = {
   'Add line': addLine,
   'Add polyline': addPolyline,
 };
-
 
 const mouseMoveFunctions = {
   'Move': dragSelectedElement,
@@ -178,4 +190,7 @@ function mouseMoveOnSVG(event) {
 
 function mouseUpOnSVG(event) {
   dragOffset = false;
+  if (toolbarMode === 'Adding polyline') {
+    addPolylinePoint(event);
+  }
 }

@@ -102,7 +102,7 @@ function showSelectionBox(element) {
 
 function addActiveSpritePanelEventHandlers() {
   const backgroundRect = document.getElementById('background-rect');
-  backgroundRect.addEventListener('click', deselectElement);
+  // backgroundRect.addEventListener('click', deselectElement);
   
   const svg = document.querySelector('#main-svg');
   svg.addEventListener('mousedown', mouseDownOnSVG);
