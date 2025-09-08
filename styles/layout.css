@@ -46,3 +46,32 @@ body {
     display: flex;
     align-items: center;
 }
+
+.sprite-preview {
+    background: #fff;
+    border: 1px dashed #ccc;
+    margin: 8px;
+}
+
+.sprite-preview svg {
+    height: 100px;
+    width: 100px;
+}
+
+.add-sprite-button {
+    background: #eee;
+    border: 1px dashed #ccc;
+}
+
+.add-sprite-button:hover {
+    background: #f8f8f8;
+    cursor: pointer;
+}
+
+.add-sprite-button svg {
+    height: 100%;
+    width: 100%;
+    max-height: 100px;
+    color: #007bff;
+}
+
