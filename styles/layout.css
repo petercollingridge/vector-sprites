@@ -41,16 +41,21 @@ body {
     height: 144px;
     background: #f4f6fa;
     border-top: 1px solid #e0e0e0;
-    padding: 16px 32px;
+    padding: 16px;
     box-sizing: border-box;
-    display: flex;
     align-items: center;
+    display: flex;
+}
+
+.all-sprites {
+    display: flex;
+    gap: 10px;
+    margin-right: 10px;
 }
 
 .sprite-preview {
     background: #fff;
     border: 1px dashed #ccc;
-    margin: 8px;
 }
 
 .sprite-preview svg {

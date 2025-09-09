@@ -17,8 +17,20 @@ function updatePreview(index) {
   previewSVG.innerHTML = elements.innerHTML;
 }
 
+function addSprite() {
+  const spritePreview = document.querySelector('.all-sprites');
+  const svgContainer = document.createElement('div');
+  svgContainer.classList.add('sprite-preview');
+  spritePreview.appendChild(svgContainer);
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 256 256');
+  svgContainer.appendChild(svg);
+}
+
 function initPreview() {
   createPreview();
   updatePreview(0);
+
 }
 
