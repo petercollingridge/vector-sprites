@@ -127,7 +127,7 @@ function movePolylinePoint(event) {
   }
 }
 
-function addPolylinePoint(event) {
+function addPolylinePoint() {
   if (selectedElement) {
     const points = selectedElement.getAttribute('points').trim();
     const pointsArr = points.split(' ');
@@ -138,13 +138,17 @@ function addPolylinePoint(event) {
       const [x2, y2] = pointsArr[pointsArr.length - 2].split(',').map(Number);
       const dist = Math.hypot(x2 - x1, y2 - y1);
       if (dist < 3) {
-        toolbarMode = 'Add polyline';
-        return;
+        return endPolyline();
       }
     }
 
     selectedElement.setAttribute('points', `${points} ${x1},${y1}`);
   }
+}
+
+function endPolyline() {
+  toolbarMode = 'Add polyline';
+  updatePreview(0);
 }
 
 const mouseDownFunctions = {
