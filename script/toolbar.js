@@ -179,5 +179,7 @@ function mouseUpOnSVG(event) {
   dragOffset = false;
   if (toolbarMode === 'Adding polyline') {
     addPolylinePoint(event);
+  } else {
+    updatePreview(0);
   }
 }
