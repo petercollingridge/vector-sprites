@@ -3,6 +3,5 @@
 document.addEventListener('DOMContentLoaded', () => {
   addActiveSpritePanelEventHandlers();
   initToolbar();
-  renderInitialShapes();
   initPreview();
 });

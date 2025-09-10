@@ -4,7 +4,6 @@ let selectedElement = null;
 let toolbarMode = 'Move';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
-const SPRITE_ELEMENTS_GROUP = document.querySelector('#sprite-elements');
 
 const initialShape = [
   {

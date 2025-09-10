@@ -8,23 +8,38 @@ function createSVGElement(tag, attrs) {
   return elem;
 }
 
-function createEditableElement({tag, ...attrs}) {
-  const element = createSVGElement(tag, attrs);
+// Given an SVG element, create a new editable SVG element
+function createEditableElement(element) {
+  const tag = element.tagName.toLowerCase();
+  const newElement = document.createElementNS(SVG_NS, tag);
 
-  element.addEventListener('mousedown', (event) => {
+  for (const attr of element.attributes) {
+    newElement.setAttribute(attr.name, attr.value);
+  }
+
+  newElement.addEventListener('mousedown', (event) => {
     if (toolbarMode === 'Move') {
-      selectElement(element);
+      selectElement(newElement);
       startDrag(event);
       event.stopPropagation();
     }
   });
-  SPRITE_ELEMENTS_GROUP.appendChild(element);
-  return element;
+
+  return newElement;
 }
 
+// Given an HTMLCollection of SVG element, add them to the main-svg elements with the
+// event handlers we need
+function createEditableElements(elements) {
+    const mainSVG = document.getElementById('sprite-elements');
+    mainSVG.innerHTML = '';
 
-function constructSVG(shapes) {
-  shapes.forEach(createEditableElement);
+  console.log(elements)
+
+  for (const element of elements) {
+    const newElement = createEditableElement(element);
+    mainSVG.appendChild(newElement);
+  }
 }
 
 // Convert mouse event.client coordinates to SVG coordinates
@@ -108,8 +123,4 @@ function addActiveSpritePanelEventHandlers() {
   svg.addEventListener('mousedown', mouseDownOnSVG);
   svg.addEventListener('mousemove', mouseMoveOnSVG);
   svg.addEventListener('mouseup', mouseUpOnSVG);
-}
-
-function renderInitialShapes() {
-  constructSVG(initialShape);
 }
