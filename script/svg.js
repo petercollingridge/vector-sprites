@@ -31,10 +31,8 @@ function createEditableElement(element) {
 // Given an HTMLCollection of SVG element, add them to the main-svg elements with the
 // event handlers we need
 function createEditableElements(elements) {
-    const mainSVG = document.getElementById('sprite-elements');
-    mainSVG.innerHTML = '';
-
-  console.log(elements)
+  const mainSVG = document.getElementById('sprite-elements');
+  mainSVG.innerHTML = '';
 
   for (const element of elements) {
     const newElement = createEditableElement(element);
