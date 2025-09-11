@@ -38,8 +38,8 @@ function createEditableElement(element) {
 function addEditableElement({ tag, ...attrs }) {
   const newElement = createSVGElement(tag, attrs);
   makeEditable(newElement);
-  const mainSVG = document.getElementById('sprite-elements');
-  mainSVG.appendChild(newElement);
+  const elementContainer = document.getElementById('sprite-elements');
+  elementContainer.appendChild(newElement);
   return newElement;
 }
 

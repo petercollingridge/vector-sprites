@@ -9,12 +9,13 @@ function createPreview() {
 }
 
 // Update the sprite preview with the current main SVG content
-function updatePreview(index) {
-  const spritePreview = document.querySelector('.sprite-preview');
-  const previewSVG = spritePreview.children[index];
+function updatePreview() {
+  const spritePreviews = document.querySelectorAll('.sprite-preview');
+  const spritePreview = spritePreviews[selectedPreview];
+  const previewSVG = spritePreview.querySelector('svg');
 
-  const elements = document.getElementById('sprite-elements');
-  previewSVG.innerHTML = elements.innerHTML;
+  const sourceElements = document.getElementById('sprite-elements');
+  previewSVG.innerHTML = sourceElements.innerHTML;
 }
 
 // Add new sprite preview SVG
@@ -29,26 +30,32 @@ function addPreview() {
   svgContainer.appendChild(svg);
 
   // Select this svg when container clicked
-  svgContainer.addEventListener('click', () => selectSprite(svg));
-  return svg;
+  svgContainer.addEventListener('click', () => selectSprite(svgContainer));
+  return svgContainer;
 }
 
 // Create the initial preview SVG with example shapes
-function createInitialSVG(initialSVG) {
+function createInitialSVG(container) {
+  const svgElement = container.querySelector('svg');
   initialShape.forEach(({ tag, ...attrs }) => {
     const shapeElement = createSVGElement(tag, attrs)
-    initialSVG.appendChild(shapeElement);
+    svgElement.appendChild(shapeElement);
   });
 }
 
-function selectSprite(svg) {
-    const allSprites = document.querySelectorAll('.sprite-preview');
-    allSprites.forEach((sprite) => {
-      sprite.classList.toggle('selected', sprite === svg);
-    });
+function selectSprite(container) {
+  const allSprites = document.querySelectorAll('.sprite-preview');
+  allSprites.forEach((sprite, index) => {
+    const isSelected = sprite === container;
+    if (isSelected) {
+      selectedPreview = index;
+    }
+    sprite.classList.toggle('selected', isSelected);
+  });
 
   // Copy the selected sprite's content to the main SVG
-  createEditableElements(svg.children);
+  const svgElements = container.querySelector('svg');
+  createEditableElements(svgElements.children);
 }
 
 function initPreview() {

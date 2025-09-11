@@ -148,7 +148,7 @@ function addPolylinePoint() {
 
 function endPolyline() {
   toolbarMode = 'Add polyline';
-  updatePreview(0);
+  updatePreview();
 }
 
 const mouseDownFunctions = {
@@ -184,6 +184,6 @@ function mouseUpOnSVG(event) {
   if (toolbarMode === 'Adding polyline') {
     addPolylinePoint(event);
   } else {
-    updatePreview(0);
+    updatePreview();
   }
 }

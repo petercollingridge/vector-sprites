@@ -1,6 +1,7 @@
 // Variables for managing the current state
 let dragOffset = false;
 let selectedElement = null;
+let selectedPreview = 0;
 let toolbarMode = 'Move';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
