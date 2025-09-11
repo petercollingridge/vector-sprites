@@ -36,6 +36,8 @@ function addPreview() {
   svg.setAttribute('viewBox', '0 0 256 256');
   svgContainer.appendChild(svg);
 
+  selectSprite(selectedPreview + 1);
+
   // Select this svg when container clicked
   svgContainer.addEventListener('click', () => selectSpriteByContainer(svgContainer));
   return svgContainer;
