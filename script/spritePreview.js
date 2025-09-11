@@ -18,12 +18,19 @@ function updatePreview() {
   previewSVG.innerHTML = sourceElements.innerHTML;
 }
 
-// Add new sprite preview SVG
+// Add new sprite preview SVG after the currently selected one
 function addPreview() {
   const spritePreview = document.querySelector('.all-sprites');
   const svgContainer = document.createElement('div');
   svgContainer.classList.add('sprite-preview');
-  spritePreview.appendChild(svgContainer);
+
+  const previews = spritePreview.querySelectorAll('.sprite-preview');
+
+  if (selectedPreview >= previews.length - 1) {
+    spritePreview.appendChild(svgContainer);
+  } else {
+    spritePreview.insertBefore(svgContainer, previews[selectedPreview + 1]);
+  }
   
   const svg = document.createElementNS(SVG_NS, 'svg');
   svg.setAttribute('viewBox', '0 0 256 256');
@@ -79,7 +86,6 @@ function selectSprite(index) {
   const svgElements = container.querySelector('svg');
   createEditableElements(svgElements.children);
 }
-
 
 function initPreview() {
   const initialPreview = addPreview();
