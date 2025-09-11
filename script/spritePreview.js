@@ -30,8 +30,15 @@ function addPreview() {
   svgContainer.appendChild(svg);
 
   // Select this svg when container clicked
-  svgContainer.addEventListener('click', () => selectSprite(svgContainer));
+  svgContainer.addEventListener('click', () => selectSpriteByContainer(svgContainer));
   return svgContainer;
+}
+
+function deletePreview() {
+  const spritePreviews = document.querySelectorAll('.sprite-preview');
+  const spritePreview = spritePreviews[selectedPreview];
+  spritePreview.remove();
+  selectSprite(selectedPreview)
 }
 
 // Create the initial preview SVG with example shapes
@@ -43,7 +50,7 @@ function createInitialSVG(container) {
   });
 }
 
-function selectSprite(container) {
+function selectSpriteByContainer(container) {
   const allSprites = document.querySelectorAll('.sprite-preview');
   allSprites.forEach((sprite, index) => {
     const isSelected = sprite === container;
@@ -58,9 +65,25 @@ function selectSprite(container) {
   createEditableElements(svgElements.children);
 }
 
+function selectSprite(index) {
+  selectedPreview = index;
+  let container;
+  const allSprites = document.querySelectorAll('.sprite-preview');
+  allSprites.forEach((sprite, i) => {
+    if (i === index) {
+      container = sprite;
+    }
+    sprite.classList.toggle('selected', i === index);
+  });
+    // Copy the selected sprite's content to the main SVG
+  const svgElements = container.querySelector('svg');
+  createEditableElements(svgElements.children);
+}
+
+
 function initPreview() {
   const initialPreview = addPreview();
   createInitialSVG(initialPreview);
-  selectSprite(initialPreview);
+  selectSprite(0);
 }
 

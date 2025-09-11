@@ -1,0 +1,45 @@
+.preview-toolbar {
+    height: 100%;
+    width: 120px;
+    border-right: 1px solid #e0e0e0;
+    padding: 8px;
+    margin-right: 8px;
+    box-sizing: border-box;
+}
+
+.preview-toolbar button {
+    background: #ddd;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin: 2px 0;
+    padding: 3px 5px;
+    cursor: pointer;
+    width: 100%;
+    justify-content: center;
+}
+
+.preview-toolbar button:hover {
+    background: #fff;
+    transition: background 0.15s;
+    border: 1px solid #ccc;
+}
+
+.all-sprites {
+    display: flex;
+}
+
+.sprite-preview {
+    background: #f4f6fa;
+    border: 1px dashed #ccc;
+    margin: 8px;
+}
+
+.sprite-preview.selected {
+    background: #fff;
+    border: 1px solid #007bff;
+}
+
+.sprite-preview svg {
+    height: 128px;
+    width: 128px;
+}

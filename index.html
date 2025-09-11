@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="styles/sidebar.css">
     <link rel="stylesheet" href="styles/toolbar.css">
     <link rel="stylesheet" href="styles/active-sprite.css">
+    <link rel="stylesheet" href="styles/preview.css">
 </head>
 
 <body>
@@ -70,12 +71,11 @@
             </main>
 
             <div class="all-sprites-panel">
+                <div class="preview-toolbar">
+                    <button class="add-sprite-button" onclick="addPreview()">Add</button>
+                    <button class="add-sprite-button" onclick="deletePreview()">Delete</button>
+                </div>
                 <div class="all-sprites"></div>
-                <button class="add-sprite-button" onclick="addPreview()">
-                    <svg viewBox="0 0 24 24" >
-                        <path d="M4 12h16M12 4v16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                    </svg>
-                </button>
             </div>
         </div>
     </div>
