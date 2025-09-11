@@ -39,6 +39,12 @@
     border: 1px solid #007bff;
 }
 
+.sprite-preview:hover {
+    background: #fff;
+    border: 1px dashed #007bff;
+    cursor: pointer;
+}
+
 .sprite-preview svg {
     height: 128px;
     width: 128px;

@@ -43,6 +43,16 @@ function addPreview() {
   return svgContainer;
 }
 
+// Create a new sprite that's a copy of the selected one
+function copyPreview() {
+  const spritePreviews = document.querySelectorAll('.sprite-preview');
+  const spritePreview = spritePreviews[selectedPreview];
+  const newPreview = spritePreview.cloneNode(true);
+  newPreview.addEventListener('click', () => selectSpriteByContainer(newPreview));
+  spritePreview.parentNode.insertBefore(newPreview, spritePreview.nextSibling);
+  selectSprite(selectedPreview + 1);
+}
+
 function deletePreview() {
   const spritePreviews = document.querySelectorAll('.sprite-preview');
   const spritePreview = spritePreviews[selectedPreview];
@@ -59,6 +69,13 @@ function createInitialSVG(container) {
   });
 }
 
+// Copy the selected sprite's content to the main SVG
+function updateMainSVG(container) {
+  const svgElements = container.querySelector('svg');
+  createEditableElements(svgElements.children);
+  deselectElement();
+}
+
 function selectSpriteByContainer(container) {
   const allSprites = document.querySelectorAll('.sprite-preview');
   allSprites.forEach((sprite, index) => {
@@ -68,10 +85,7 @@ function selectSpriteByContainer(container) {
     }
     sprite.classList.toggle('selected', isSelected);
   });
-
-  // Copy the selected sprite's content to the main SVG
-  const svgElements = container.querySelector('svg');
-  createEditableElements(svgElements.children);
+  updateMainSVG(container);
 }
 
 function selectSprite(index) {
@@ -84,9 +98,7 @@ function selectSprite(index) {
     }
     sprite.classList.toggle('selected', i === index);
   });
-    // Copy the selected sprite's content to the main SVG
-  const svgElements = container.querySelector('svg');
-  createEditableElements(svgElements.children);
+  updateMainSVG(container)
 }
 
 function initPreview() {
