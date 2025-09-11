@@ -8,23 +8,38 @@ function createSVGElement(tag, attrs) {
   return elem;
 }
 
-// Given an SVG element, create a new editable SVG element
-function createEditableElement(element) {
+function cloneSVGElement(element) {
   const tag = element.tagName.toLowerCase();
   const newElement = document.createElementNS(SVG_NS, tag);
 
   for (const attr of element.attributes) {
     newElement.setAttribute(attr.name, attr.value);
   }
+  return newElement;
+}
 
-  newElement.addEventListener('mousedown', (event) => {
+function makeEditable(element) {
+  element.addEventListener('mousedown', (event) => {
     if (toolbarMode === 'Move') {
-      selectElement(newElement);
+      selectElement(element);
       startDrag(event);
       event.stopPropagation();
     }
   });
+}
 
+// Given an SVG element, create a new editable SVG element
+function createEditableElement(element) {
+  const newElement = cloneSVGElement(element);
+  makeEditable(newElement);
+  return newElement;
+}
+
+function addEditableElement({ tag, ...attrs }) {
+  const newElement = createSVGElement(tag, attrs);
+  makeEditable(newElement);
+  const mainSVG = document.getElementById('sprite-elements');
+  mainSVG.appendChild(newElement);
   return newElement;
 }
 

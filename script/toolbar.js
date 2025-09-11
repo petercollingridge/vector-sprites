@@ -23,7 +23,7 @@ function initToolbar() {
 
 function addRect(event) {
   const coords = clientToSVGCoords(event);
-  return createEditableElement({
+  return addEditableElement({
     tag: 'rect',
     x: coords.x,
     y: coords.y,
@@ -35,7 +35,7 @@ function addRect(event) {
 
 function addEllipse(event) {
   const coords = eventToSVGCoords(event);
-  return createEditableElement({
+  return addEditableElement({
     tag: 'ellipse',
     cx: coords.x,
     cy: coords.y,
@@ -48,7 +48,7 @@ function addEllipse(event) {
 function addPolyline(event) {
   const coords = eventToSVGCoords(event);
   toolbarMode = 'Adding polyline';
-  return createEditableElement({
+  return addEditableElement({
     tag: 'polyline',
     points: `${coords.x},${coords.y}`,
     ...newShapeStyles,
