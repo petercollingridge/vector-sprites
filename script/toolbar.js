@@ -79,10 +79,9 @@ function startDrag(event) {
 }
 
 function dragSelectedElement(event) {
-  if (selectedElement && dragOffset) {
-    const transform = selectedElement.transform.baseVal.getItem(0);
-    transform.setTranslate(event.clientX - dragOffset.x, event.clientY - dragOffset.y);
-    showSelectionBox(selectedElement);
+  if (selectedElement) {
+    selectedElement.drag(event);
+    // showSelectionBox(selectedElement);
   }
 }
 
@@ -181,6 +180,9 @@ function mouseMoveOnSVG(event) {
 }
 
 function mouseUpOnSVG(event) {
+  if (selectedElement) {
+    selectedElement.mouseUp(event);
+  }
   dragOffset = false;
   if (toolbarMode === 'Adding polyline') {
     addPolylinePoint(event);
