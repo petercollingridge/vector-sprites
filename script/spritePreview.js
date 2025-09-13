@@ -72,8 +72,9 @@ function createInitialSVG(container) {
 // Copy the selected sprite's content to the main SVG
 function updateMainSVG(container) {
   const svgElements = container.querySelector('svg');
-  createEditableElements(svgElements.children);
-  deselectElement();
+  createSvgObject(svgElements.children);
+  // createEditableElements(svgElements.children);
+  // deselectElement();
 }
 
 function selectSpriteByContainer(container) {
