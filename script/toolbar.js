@@ -4,6 +4,7 @@ const newShapeStyles = {
     'stroke-width': 2
 };
 
+// Add event handlers to toolbar button to activate the respective tool
 function initToolbar() {
 	const toolbar = document.querySelector('.toolbar');
 	if (!toolbar) return;

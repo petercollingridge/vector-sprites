@@ -80,12 +80,13 @@ function selectSpriteByContainer(container) {
   const allSprites = document.querySelectorAll('.sprite-preview');
   allSprites.forEach((sprite, index) => {
     const isSelected = sprite === container;
-    if (isSelected) {
-      selectedPreview = index;
-    }
     sprite.classList.toggle('selected', isSelected);
+
+    if (isSelected && selectedPreview !== index) {
+      selectedPreview = index;
+      updateMainSVG(container);
+    }
   });
-  updateMainSVG(container);
 }
 
 function selectSprite(index) {
