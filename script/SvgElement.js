@@ -116,13 +116,13 @@ class EditablePath extends EditableElement {
   constructor(container, element) {
     super(container, element);
 
-    this.pathData = this._parsePoints();
-    this.points = this.pathData.map((d) => d.coords).flat();
+    this.pathData = this._parsePoints(element.getAttribute('d'));
+    this._transformToZero();
+    this.points = this.pathData.map(d => d.coords).filter(d => d.length);
   }
 
-  _parsePoints() {
-    const d = this.element.getAttribute('d');
 
+  _parsePoints(dString) {
     const reCommands = /([ACHLMQSTVZ])([-\+\d\.\s,e]*)/gi;
     const reDigits = /(-?\d*\.?\d+)/g;
     const pathData = [];
@@ -141,7 +141,7 @@ class EditablePath extends EditableElement {
     };
 
     let commands;
-    while (commands = reCommands.exec(d)) {
+    while (commands = reCommands.exec(dString)) {
       const commandValues = { command: commands[1] };
       const digits = getDigits(commands[2]);
       if (digits) {
@@ -151,6 +151,43 @@ class EditablePath extends EditableElement {
     }
 
     return pathData;
+  }
+
+  _transformToZero() {
+    // Move the points of the path so they are centred on the origin
+    // then translate back to its original position
+    const { x, y } = this._getMidPoint();
+    
+    this.pathData.forEach(cmd => {
+      // This assumes coords is length 2
+      cmd.coords = [cmd.coords[0] - x, cmd.coords[1] - y]
+  });
+
+    // Update element path d attribute
+    const pathString = this._writePathString(this.pathData);
+    this.element.setAttribute('d', pathString);
+
+    // Add a translation transform
+    this.transform = this.element.ownerSVGElement.createSVGTransform();
+    this.transform.setTranslate(x, y);
+    this.element.transform.baseVal.insertItemBefore(this.transform, 0);
+  }
+
+  _getMidPoint() {
+    const coords = this.pathData.map(cmd => cmd.coords).filter(d => d.length);
+    const minX = Math.min(...coords.map(p => p[0]));
+    const minY = Math.min(...coords.map(p => p[1]));
+    const maxX = Math.max(...coords.map(p => p[0]));
+    const maxY = Math.max(...coords.map(p => p[1]));
+    return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+  }
+
+  _writePathString(pathData) {
+    const commands = pathData.map(cmd => {
+      const coords = cmd.coords.join(',');
+      return `${cmd.command} ${coords}`;
+    });
+    return commands.join(' ');
   }
 }
 
