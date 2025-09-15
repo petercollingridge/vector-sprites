@@ -1,19 +1,19 @@
 // Wrapper for SVG element that allows it to be editable
 class EditableElement {
   constructor(container, element) {
-    this.points = [];
+    // this.points = [];
 
-    // Create a new SVG node
-    this.element = element.cloneNode(true);
-    container.appendChild(this.element);
+    // // Create a new SVG node
+    // this.element = element.cloneNode(true);
+    // container.appendChild(this.element);
 
-    // Add a translation transform
-    this.transform = this.element.ownerSVGElement.createSVGTransform();
-    this.transform.setTranslate(0, 0);
-    this.element.transform.baseVal.insertItemBefore(this.transform, 0);
+    // // Add a translation transform
+    // this.transform = this.element.ownerSVGElement.createSVGTransform();
+    // this.transform.setTranslate(0, 0);
+    // this.element.transform.baseVal.insertItemBefore(this.transform, 0);
 
-    // Add event listeners
-    this.element.addEventListener('mousedown', this.mouseDown.bind(this));
+    // // Add event listeners
+    // this.element.addEventListener('mousedown', this.mouseDown.bind(this));
   }
 
   mouseDown(event) {
@@ -66,17 +66,17 @@ class EditableElement {
   }
 
   showEditPoints() {
-    const container = document.getElementById('selection-points');
-    container.innerHTML = '';
+    // const container = document.getElementById('control-points');
+    // container.innerHTML = '';
 
-    this.points.forEach((p) => {
-      const point = createSVGElement('circle');
-      point.setAttribute('cx', p[0]);
-      point.setAttribute('cy', p[1]);
-      point.setAttribute('r', 4);
-      point.setAttribute('fill', 'blue');
-      container.appendChild(point);
-    });
+    // this.points.forEach((p) => {
+    //   const point = createSVGElement('circle');
+    //   point.setAttribute('cx', p[0]);
+    //   point.setAttribute('cy', p[1]);
+    //   point.setAttribute('r', 4);
+    //   point.setAttribute('fill', 'blue');
+    //   container.appendChild(point);
+    // });
   }
 
   update(attrs) {
@@ -117,12 +117,99 @@ class EditablePath extends EditableElement {
     super(container, element);
 
     this.pathData = this._parsePoints(element.getAttribute('d'));
-    this._transformToZero();
-    this.points = this.pathData.map(d => d.coords).filter(d => d.length);
+    this.mid = this.getMidPoint(this.pathData);
+    this.pathData = this.translatePathData(this.pathData, -this.mid.x, -this.mid.y);
+    this.points = this.pathData.map(d => d.coords);
+
+    this.element = this._createElement(element, this.pathData);
+    container.appendChild(this.element);
+    this.transform = addTransform(this.element, this.mid.x, this.mid.y);
+
+    // Add event listeners
+    this.element.addEventListener('mousedown', this.mouseDown.bind(this));
   }
 
+ _createElement(element, pathData) {
+    // Update element path d attribute
+    const pathString = this._writePathString(pathData);
+    
+    const newElement = element.cloneNode(true);
+    newElement.setAttribute('d', pathString);
+    return newElement;
+  }
+
+  drag(event) {
+    if (this.dragging) {
+      const translateX = event.clientX - this.dragOffset.x;
+      const translateY = event.clientY - this.dragOffset.y;
+      this.updateTranslation(translateX, translateY);
+    }
+  }
+
+  getBounds(pathData) {
+    const coords = pathData.map(cmd => cmd.coords).filter(Boolean);
+    return {
+      minX: Math.min(...coords.map(p => p[0])),
+      minY: Math.min(...coords.map(p => p[1])),
+      maxX: Math.max(...coords.map(p => p[0])),
+      maxY: Math.max(...coords.map(p => p[1])),
+    };
+  }
+
+  getMidPoint(pathData) {
+    const bounds = this.getBounds(pathData);
+    return {
+      x: (bounds.minX + bounds.maxX) / 2,
+      y: (bounds.minY + bounds.maxY) / 2
+    };
+  }
+
+  mouseDown(event) {
+    renderEditElementPanel(this.element);
+
+    if (toolbarMode === 'Move') {
+      this.dragging = true;
+      // deselectCurrentElement();
+      selectedElement = this;
+      this.element.style.cursor = 'move';
+      this.showBoundingBox();
+
+      const matrix = this.transform.matrix;
+      this.dragOffset = {
+        x: event.clientX - matrix.e,
+        y: event.clientY - matrix.f
+      };
+    }
+  }
+
+  showBoundingBox() {
+    // TODO: take into account stroke width
+    const selectionBox = document.getElementById('selection-box');
+    while (selectionBox.transform.baseVal.numberOfItems > 0) {
+      selectionBox.transform.baseVal.removeItem(0);
+    }
+
+    // Copy translation of the shape to the bounding box
+    const matrix = this.transform.matrix;
+    this.boxTransform = addTransform(selectionBox, matrix.e, matrix.f);
+
+    const bounds = this.getBounds(this.pathData);
+    selectionBox.setAttribute('x', bounds.minX);
+    selectionBox.setAttribute('y', bounds.minY);
+    selectionBox.setAttribute('width', bounds.maxX - bounds.minX);
+    selectionBox.setAttribute('height', bounds.maxY - bounds.minY);
+    selectionBox.style.display = 'block';
+
+    this.showEditPoints()
+  }
+
+  updateTranslation(dx, dy) {
+    this.transform.setTranslate(dx, dy);
+    this.boxTransform.setTranslate(dx, dy);
+  }
 
   _parsePoints(dString) {
+    // Convert a path d attribute string into an array of command objects
     const reCommands = /([ACHLMQSTVZ])([-\+\d\.\s,e]*)/gi;
     const reDigits = /(-?\d*\.?\d+)/g;
     const pathData = [];
@@ -144,7 +231,7 @@ class EditablePath extends EditableElement {
     while (commands = reCommands.exec(dString)) {
       const commandValues = { command: commands[1] };
       const digits = getDigits(commands[2]);
-      if (digits) {
+      if (digits && digits.length) {
         commandValues.coords = digits;
       }
       pathData.push(commandValues);
@@ -153,38 +240,22 @@ class EditablePath extends EditableElement {
     return pathData;
   }
 
-  _transformToZero() {
+  translatePathData(pathData, dx, dy) {
     // Move the points of the path so they are centred on the origin
     // then translate back to its original position
-    const { x, y } = this._getMidPoint();
-    
-    this.pathData.forEach(cmd => {
-      // This assumes coords is length 2
-      cmd.coords = [cmd.coords[0] - x, cmd.coords[1] - y]
-  });
 
-    // Update element path d attribute
-    const pathString = this._writePathString(this.pathData);
-    this.element.setAttribute('d', pathString);
-
-    // Add a translation transform
-    this.transform = this.element.ownerSVGElement.createSVGTransform();
-    this.transform.setTranslate(x, y);
-    this.element.transform.baseVal.insertItemBefore(this.transform, 0);
-  }
-
-  _getMidPoint() {
-    const coords = this.pathData.map(cmd => cmd.coords).filter(d => d.length);
-    const minX = Math.min(...coords.map(p => p[0]));
-    const minY = Math.min(...coords.map(p => p[1]));
-    const maxX = Math.max(...coords.map(p => p[0]));
-    const maxY = Math.max(...coords.map(p => p[1]));
-    return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+    return pathData.map(({ command, coords }) => {
+      if (!coords) {
+        return { command };
+      }
+      const newCoords = [coords[0] + dx, coords[1] + dy];
+      return { command, coords: newCoords };
+    });
   }
 
   _writePathString(pathData) {
     const commands = pathData.map(cmd => {
-      const coords = cmd.coords.join(',');
+      const coords = cmd.coords ? cmd.coords.join(',') : '';
       return `${cmd.command} ${coords}`;
     });
     return commands.join(' ');

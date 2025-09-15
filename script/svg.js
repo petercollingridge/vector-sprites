@@ -8,6 +8,13 @@ function createSVGElement(tag, attrs) {
   return elem;
 }
 
+function addTransform(element, dx, dy) {
+  const transform = element.ownerSVGElement.createSVGTransform();
+  transform.setTranslate(dx, dy);
+  element.transform.baseVal.insertItemBefore(transform, 0);
+  return transform;
+}
+
 function cloneSVGElement(element) {
   const tag = element.tagName.toLowerCase();
   const newElement = document.createElementNS(SVG_NS, tag);
