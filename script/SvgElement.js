@@ -50,15 +50,33 @@ class EditableElement {
 
   showBoundingBox() {
     // TODO: take into account stroke width
+    // TODO: Apply the same transform as the element
+    // Update position of the edit points
     const selectionBox = document.getElementById('selection-box');
     const bbox = this.element.getBBox();
     const matrix = this.transform.matrix;
 
-    selectionBox.setAttribute('x', matrix.e + bbox.x - 2);
-    selectionBox.setAttribute('y', matrix.f + bbox.y - 2);
-    selectionBox.setAttribute('width', bbox.width + 4);
-    selectionBox.setAttribute('height', bbox.height + 4);
+    selectionBox.setAttribute('x', matrix.e + bbox.x);
+    selectionBox.setAttribute('y', matrix.f + bbox.y);
+    selectionBox.setAttribute('width', bbox.width);
+    selectionBox.setAttribute('height', bbox.height);
     selectionBox.style.display = 'block';
+
+    this.showEditPoints()
+  }
+
+  showEditPoints() {
+    const container = document.getElementById('selection-points');
+    container.innerHTML = '';
+
+    this.points.forEach((p) => {
+      const point = createSVGElement('circle');
+      point.setAttribute('cx', p[0]);
+      point.setAttribute('cy', p[1]);
+      point.setAttribute('r', 4);
+      point.setAttribute('fill', 'blue');
+      container.appendChild(point);
+    });
   }
 
   update(attrs) {
@@ -76,10 +94,10 @@ class EditableRect extends EditableElement {
   constructor(container, element) {
     super(container, element);
 
-    const x = this.element.getAttribute('x');
-    const y = this.element.getAttribute('y');
-    const width = this.element.getAttribute('width');
-    const height = this.element.getAttribute('height');
+    const x = parseFloat(this.element.getAttribute('x'));
+    const y = parseFloat(this.element.getAttribute('y'));
+    const width = parseFloat(this.element.getAttribute('width'));
+    const height = parseFloat(this.element.getAttribute('height'));
 
     this.points = [
       [x, y],
@@ -94,8 +112,51 @@ class EditableRect extends EditableElement {
   }
 }
 
+class EditablePath extends EditableElement {
+  constructor(container, element) {
+    super(container, element);
+
+    this.pathData = this._parsePoints();
+    this.points = this.pathData.map((d) => d.coords).flat();
+  }
+
+  _parsePoints() {
+    const d = this.element.getAttribute('d');
+
+    const reCommands = /([ACHLMQSTVZ])([-\+\d\.\s,e]*)/gi;
+    const reDigits = /(-?\d*\.?\d+)/g;
+    const pathData = [];
+
+    // Converts a string of digits to an array of floats
+    const getDigits = function(digitString) {
+      const digits = [];
+      
+      if (digitString) {
+        let digit;
+        while (digit = reDigits.exec(digitString)) {
+          digits.push(parseFloat(digit[1]));
+        }
+      }
+      return digits;
+    };
+
+    let commands;
+    while (commands = reCommands.exec(d)) {
+      const commandValues = { command: commands[1] };
+      const digits = getDigits(commands[2]);
+      if (digits) {
+        commandValues.coords = digits;
+      }
+      pathData.push(commandValues);
+    }
+
+    return pathData;
+  }
+}
+
 const EditableClasses = {
   rect: EditableRect,
+  path: EditablePath,
 };
 
 const EditableElementFactory = (type) => EditableClasses[type] || EditableElement;

@@ -69,7 +69,7 @@ function createInitialSVG(container) {
   });
 }
 
-// Copy the selected sprite's content to the main SVG
+// Copy the selected sprite's content into the main SVG and make it editable
 function updateMainSVG(container) {
   const svgElements = container.querySelector('svg');
   createSvgObject(svgElements.children);

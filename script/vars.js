@@ -18,11 +18,8 @@ const initialShape = [
     'stroke-width': 6,
   },
   {
-    tag: 'rect',
-    x: 78,
-    y: 170,
-    width: 100,
-    height: 50,
+    tag: 'path',
+    d: 'M80 170 L178 170 L178 220 L80 220 Z',
     fill: '#e7c5a0ff',
     stroke: '#ff9d00ff',
     'stroke-width': 6,
