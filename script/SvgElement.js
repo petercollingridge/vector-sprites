@@ -8,9 +8,9 @@ class EditableElement {
     // container.appendChild(this.element);
 
     // // Add a translation transform
-    // this.transform = this.element.ownerSVGElement.createSVGTransform();
-    // this.transform.setTranslate(0, 0);
-    // this.element.transform.baseVal.insertItemBefore(this.transform, 0);
+    // this.shapetransform = this.element.ownerSVGElement.createSVGTransform();
+    // this.shapetransform.setTranslate(0, 0);
+    // this.element.transform.baseVal.insertItemBefore(this.shapetransform, 0);
 
     // // Add event listeners
     // this.element.addEventListener('mousedown', this.mouseDown.bind(this));
@@ -26,7 +26,7 @@ class EditableElement {
       this.element.style.cursor = 'move';
       this.showBoundingBox();
 
-      const matrix = this.transform.matrix;
+      const matrix = this.shapeTransform.matrix;
       this.dragOffset = {
         x: event.clientX - matrix.e,
         y: event.clientY - matrix.f
@@ -40,7 +40,7 @@ class EditableElement {
 
   drag(event) {
     if (this.dragging) {
-      this.transform.setTranslate(
+      this.shapeTransform.setTranslate(
         event.clientX - this.dragOffset.x,
         event.clientY - this.dragOffset.y
       );
@@ -54,7 +54,7 @@ class EditableElement {
     // Update position of the edit points
     const selectionBox = document.getElementById('selection-box');
     const bbox = this.element.getBBox();
-    const matrix = this.transform.matrix;
+    const matrix = this.shapeTransform.matrix;
 
     selectionBox.setAttribute('x', matrix.e + bbox.x);
     selectionBox.setAttribute('y', matrix.f + bbox.y);
@@ -123,7 +123,7 @@ class EditablePath extends EditableElement {
 
     this.element = this._createElement(element, this.pathData);
     container.appendChild(this.element);
-    this.transform = addTransform(this.element, this.mid.x, this.mid.y);
+    this.shapeTransform = addTransform(this.element, this.mid.x, this.mid.y);
 
     // Add event listeners
     this.element.addEventListener('mousedown', this.mouseDown.bind(this));
@@ -174,7 +174,7 @@ class EditablePath extends EditableElement {
       this.element.style.cursor = 'move';
       this.showBoundingBox();
 
-      const matrix = this.transform.matrix;
+      const matrix = this.shapeTransform.matrix;
       this.dragOffset = {
         x: event.clientX - matrix.e,
         y: event.clientY - matrix.f
@@ -185,12 +185,10 @@ class EditablePath extends EditableElement {
   showBoundingBox() {
     // TODO: take into account stroke width
     const selectionBox = document.getElementById('selection-box');
-    while (selectionBox.transform.baseVal.numberOfItems > 0) {
-      selectionBox.transform.baseVal.removeItem(0);
-    }
-
+    
     // Copy translation of the shape to the bounding box
-    const matrix = this.transform.matrix;
+    clearTransforms(selectionBox);
+    const matrix = this.shapeTransform.matrix;
     this.boxTransform = addTransform(selectionBox, matrix.e, matrix.f);
 
     const bounds = this.getBounds(this.pathData);
@@ -200,12 +198,37 @@ class EditablePath extends EditableElement {
     selectionBox.setAttribute('height', bounds.maxY - bounds.minY);
     selectionBox.style.display = 'block';
 
-    this.showEditPoints()
+    this.createBoundingPoints();
+  }
+
+  createBoundingPoints() {
+    const pointsContainer = document.getElementById('control-points');
+    pointsContainer.innerHTML = '';
+
+    clearTransforms(pointsContainer);
+    const matrix = this.shapeTransform.matrix;
+    this.pointsTransform = addTransform(pointsContainer, matrix.e, matrix.f);
+
+    const p = this.getBounds(this.pathData);
+    const points = [
+      [p.minX, p.minY], [p.maxX, p.minY], [p.maxX, p.maxY], [p.minX, p.maxY]
+    ];
+
+    points.forEach(point => {
+      const pointElem = createSVGElement('circle', {
+        cx: point[0],
+        cy: point[1],
+        r: 5,
+        fill: 'blue'
+      });
+      pointsContainer.appendChild(pointElem);
+    });
   }
 
   updateTranslation(dx, dy) {
-    this.transform.setTranslate(dx, dy);
+    this.shapeTransform.setTranslate(dx, dy);
     this.boxTransform.setTranslate(dx, dy);
+    this.pointsTransform.setTranslate(dx, dy);
   }
 
   _parsePoints(dString) {

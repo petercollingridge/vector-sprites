@@ -15,6 +15,13 @@ function addTransform(element, dx, dy) {
   return transform;
 }
 
+function clearTransforms(element) {
+  const transforms = element.transform.baseVal;
+  while (transforms.numberOfItems > 0) {
+    transforms.removeItem(0);
+  }
+}
+
 function cloneSVGElement(element) {
   const tag = element.tagName.toLowerCase();
   const newElement = document.createElementNS(SVG_NS, tag);
