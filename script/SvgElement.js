@@ -214,14 +214,9 @@ class EditablePath extends EditableElement {
       [p.minX, p.minY], [p.maxX, p.minY], [p.maxX, p.maxY], [p.minX, p.maxY]
     ];
 
-    points.forEach(point => {
-      const pointElem = createSVGElement('circle', {
-        cx: point[0],
-        cy: point[1],
-        r: 5,
-        fill: 'blue'
-      });
-      pointsContainer.appendChild(pointElem);
+    points.forEach((point) => {
+      const controlPoint = new ControlPoint(pointsContainer, point[0], point[1]);
+      this.points.push(controlPoint);
     });
   }
 
