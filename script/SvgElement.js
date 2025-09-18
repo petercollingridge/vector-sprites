@@ -43,7 +43,13 @@ class EditablePath {
   }
 
   getBounds(pathData) {
-    const coords = pathData.map(cmd => cmd.coords).filter(Boolean);
+    // Get the coordinates of the path data
+    // Only works for absolute coordinates and ignores coordinates of control points
+    // i.e. gets the final two digits of a command
+    const coords = pathData
+      .filter(cmd => cmd.coords)
+      .map(cmd => cmd.coords.slice(-2));
+
     return {
       minX: Math.min(...coords.map(p => p[0])),
       minY: Math.min(...coords.map(p => p[1])),
@@ -178,7 +184,7 @@ class EditablePath {
       if (!coords) {
         return { command };
       }
-      const newCoords = [coords[0] + dx, coords[1] + dy];
+      const newCoords = coords.map((value, index) => index % 2 === 0 ? value + dx : value + dy);
       return { command, coords: newCoords };
     });
   }
