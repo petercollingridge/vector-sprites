@@ -66,6 +66,7 @@ class EditablePath {
       // deselectCurrentElement();
       selectedElement = this;
       this.element.style.cursor = 'move';
+      // Hide control points
       pointsContainer.innerHTML = '';
       const matrix = this.transform.matrix;
       this.dragOffset = {
@@ -94,7 +95,9 @@ class EditablePath {
     selectionBox.setAttribute('y', bounds.minY);
     selectionBox.setAttribute('width', bounds.maxX - bounds.minX);
     selectionBox.setAttribute('height', bounds.maxY - bounds.minY);
-    translateElement(selectionBox, this.mid.x, this.mid.y);
+
+    const matrix = this.transform.matrix;
+    translateElement(selectionBox, matrix.e, matrix.f);
     selectionBox.style.display = 'block';
 
     // this.createBoundingPoints();
