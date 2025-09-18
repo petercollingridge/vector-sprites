@@ -66,6 +66,7 @@ class EditablePath {
       // deselectCurrentElement();
       selectedElement = this;
       this.element.style.cursor = 'move';
+      pointsContainer.innerHTML = '';
       const matrix = this.transform.matrix;
       this.dragOffset = {
         x: event.clientX - matrix.e,
