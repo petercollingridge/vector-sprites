@@ -7,12 +7,13 @@ let toolbarMode = 'Move';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
+
+
+
 const initialShape = [
   {
-    tag: 'circle',
-    cx: 128,
-    cy: 128,
-    r: 50,
+    tag: 'path',
+    d: "M 178 128 C 178 155.614 155.614 178 128 178 C 100.386 178 78 155.614 78 128 C 78 100.386 100.386 78 128 78 C 155.614 78 178 100.386 178 128Z",
     fill: '#e4e6ff',
     stroke: '#007bff',
     'stroke-width': 6,
