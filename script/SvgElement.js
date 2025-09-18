@@ -10,8 +10,8 @@ class EditablePath {
     this.element = this._createElement(element, this.pathData);
     container.appendChild(this.element);
 
-    // Set up control elements
-    this._addTransforms(this.mid.x, this.mid.y);
+    // Transform shape to where it's mid point should be
+    this.transform = addTransform(this.element, this.mid.x, this.mid.y);
 
     // Add event listeners
     this.element.addEventListener('mousedown', this.mouseDown.bind(this));
@@ -24,13 +24,6 @@ class EditablePath {
     const newElement = element.cloneNode(true);
     newElement.setAttribute('d', pathString);
     return newElement;
-  }
-
-  _addTransforms(x, y) {
-    // TODO: only create transforms on box and points once
-    this.shapeTransform = addTransform(this.element, x, y);
-    this.boxTransform = addTransform(selectionBox, x, y);
-    this.pointsTransform = addTransform(pointsContainer, x, y);
   }
 
   drag(event) {
@@ -73,7 +66,7 @@ class EditablePath {
       // deselectCurrentElement();
       selectedElement = this;
       this.element.style.cursor = 'move';
-      const matrix = this.shapeTransform.matrix;
+      const matrix = this.transform.matrix;
       this.dragOffset = {
         x: event.clientX - matrix.e,
         y: event.clientY - matrix.f
@@ -89,8 +82,7 @@ class EditablePath {
   mouseUp() {
     this.dragging = false;
     if (toolbarMode === 'Edit points') {
-      this.mid = this.getMidPoint(this.pathData);
-      console.log('mid', this.mid)
+      // TODO: calculate new mid point and translate path data
     }
   }
 
@@ -127,7 +119,8 @@ class EditablePath {
 
   createEditPoints() {
     pointsContainer.innerHTML = '';
-    // translateElement(pointsContainer, this.mid.x, this.mid.y);
+    const matrix = this.transform.matrix;
+    translateElement(pointsContainer, matrix.e, matrix.f);
 
     this.controlPoints = this.pathData.map((point) => {
       if (!point.coords) return null;
@@ -144,9 +137,9 @@ class EditablePath {
   }
 
   updateTranslation(dx, dy) {
-    this.shapeTransform.setTranslate(dx, dy);
-    this.boxTransform.setTranslate(dx, dy);
-    this.pointsTransform.setTranslate(dx, dy);
+    this.transform.setTranslate(dx, dy);
+    translateElement(selectionBox, dx, dy);
+    translateElement(pointsContainer, dx, dy);
   }
 
   _parsePoints(dString) {

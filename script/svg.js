@@ -25,8 +25,8 @@ function addTransform(element, dx, dy) {
 }
 
 function translateElement(element, dx, dy) {
-  const transforms = element.transform.baseVal.getItem(0);
-  transforms.setTranslate(dx, dy);
+  const transform = element.transform.baseVal.getItem(0);
+  transform.setTranslate(dx, dy);
 }
 
 function clearTransforms(element) {
