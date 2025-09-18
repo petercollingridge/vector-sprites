@@ -21,3 +21,8 @@
   stroke-dasharray: 4 2;
   pointer-events: none;
 }
+
+#main-svg #control-points circle {
+  fill: red;
+  cursor: move;
+}

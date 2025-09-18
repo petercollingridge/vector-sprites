@@ -9,7 +9,15 @@ function createSVGElement(tag, attrs) {
 }
 
 function addTransform(element, dx, dy) {
-  const transform = element.ownerSVGElement.createSVGTransform();
+  // Try to get existing translation
+  const transforms = element.transform.baseVal;
+  let transform;
+  if (transforms.length > 0) {
+    transform = transforms.getItem(0).matrix;
+  } else {
+    transform = element.ownerSVGElement.createSVGTransform();
+  }
+
   transform.setTranslate(dx, dy);
   element.transform.baseVal.insertItemBefore(transform, 0);
   return transform;

@@ -159,6 +159,7 @@ const mouseDownFunctions = {
 
 const mouseMoveFunctions = {
   'Move': dragSelectedElement,
+  'Edit points': dragSelectedElement,
   'Add rectangle': scaleRect,
   'Add ellipse': scaleEllipse,
   'Adding polyline': movePolylinePoint,

@@ -119,23 +119,33 @@ class EditablePath extends EditableElement {
     this.pathData = this._parsePoints(element.getAttribute('d'));
     this.mid = this.getMidPoint(this.pathData);
     this.pathData = this.translatePathData(this.pathData, -this.mid.x, -this.mid.y);
-    this.points = this.pathData.map(d => d.coords);
 
+    // Create a new SVG node
     this.element = this._createElement(element, this.pathData);
     container.appendChild(this.element);
-    this.shapeTransform = addTransform(this.element, this.mid.x, this.mid.y);
+
+    // Set up control elements
+    this.selectionBox = document.getElementById('selection-box');
+    this.pointsContainer = document.getElementById('control-points');
+    this._addTransforms(this.mid.x, this.mid.y);
 
     // Add event listeners
     this.element.addEventListener('mousedown', this.mouseDown.bind(this));
   }
 
- _createElement(element, pathData) {
+  _createElement(element, pathData) {
     // Update element path d attribute
     const pathString = this._writePathString(pathData);
     
     const newElement = element.cloneNode(true);
     newElement.setAttribute('d', pathString);
     return newElement;
+  }
+
+  _addTransforms(x, y) {
+    this.shapeTransform = addTransform(this.element, x, y);
+    this.boxTransform = addTransform(this.selectionBox, x, y);
+    this.pointsTransform = addTransform(this.pointsContainer, x, y);
   }
 
   drag(event) {
@@ -172,52 +182,54 @@ class EditablePath extends EditableElement {
       // deselectCurrentElement();
       selectedElement = this;
       this.element.style.cursor = 'move';
-      this.showBoundingBox();
-
       const matrix = this.shapeTransform.matrix;
       this.dragOffset = {
         x: event.clientX - matrix.e,
         y: event.clientY - matrix.f
       };
+      this.showBoundingBox();
+    } else if (toolbarMode === 'Edit points') {
+      this.createEditPoints();
     }
   }
 
   showBoundingBox() {
     // TODO: take into account stroke width
-    const selectionBox = document.getElementById('selection-box');
-    
-    // Copy translation of the shape to the bounding box
-    clearTransforms(selectionBox);
-    const matrix = this.shapeTransform.matrix;
-    this.boxTransform = addTransform(selectionBox, matrix.e, matrix.f);
-
     const bounds = this.getBounds(this.pathData);
-    selectionBox.setAttribute('x', bounds.minX);
-    selectionBox.setAttribute('y', bounds.minY);
-    selectionBox.setAttribute('width', bounds.maxX - bounds.minX);
-    selectionBox.setAttribute('height', bounds.maxY - bounds.minY);
-    selectionBox.style.display = 'block';
+    this.selectionBox.setAttribute('x', bounds.minX);
+    this.selectionBox.setAttribute('y', bounds.minY);
+    this.selectionBox.setAttribute('width', bounds.maxX - bounds.minX);
+    this.selectionBox.setAttribute('height', bounds.maxY - bounds.minY);
+    this.selectionBox.style.display = 'block';
 
-    this.createBoundingPoints();
+    // this.createBoundingPoints();
   }
 
   createBoundingPoints() {
-    const pointsContainer = document.getElementById('control-points');
-    pointsContainer.innerHTML = '';
-
-    clearTransforms(pointsContainer);
-    const matrix = this.shapeTransform.matrix;
-    this.pointsTransform = addTransform(pointsContainer, matrix.e, matrix.f);
+    this.pointsContainer.innerHTML = '';
 
     const p = this.getBounds(this.pathData);
     const points = [
       [p.minX, p.minY], [p.maxX, p.minY], [p.maxX, p.maxY], [p.minX, p.maxY]
     ];
 
-    points.forEach((point) => {
-      const controlPoint = new ControlPoint(pointsContainer, point[0], point[1]);
-      this.points.push(controlPoint);
+    // points.forEach((point) => {
+    //   const controlPoint = new ControlPoint(this.pointsContainer, point[0], point[1]);
+    //   this.points.push(controlPoint);
+    // });
+  }
+
+  createEditPoints() {
+    this.pointsContainer.innerHTML = '';
+
+    this.controlPoints = this.pathData.map((point) => {
+      if (!point.coords) return null;
+      return new ControlPoint(this.pointsContainer, point.coords, this.updatePath.bind(this));
     });
+  }
+
+  updatePath() {
+    this.element.setAttribute('d', this._writePathString(this.pathData));
   }
 
   updateTranslation(dx, dy) {
