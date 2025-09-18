@@ -189,6 +189,8 @@ class EditablePath extends EditableElement {
       };
       this.showBoundingBox();
     } else if (toolbarMode === 'Edit points') {
+      this.element.style.cursor = 'default';
+      this.hideBoundingBox();
       this.createEditPoints();
     }
   }
@@ -203,6 +205,10 @@ class EditablePath extends EditableElement {
     this.selectionBox.style.display = 'block';
 
     // this.createBoundingPoints();
+  }
+
+  hideBoundingBox() {
+    this.selectionBox.style.display = 'none';
   }
 
   createBoundingPoints() {
