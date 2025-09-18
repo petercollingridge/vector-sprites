@@ -11,8 +11,6 @@ class EditablePath {
     container.appendChild(this.element);
 
     // Set up control elements
-    this.selectionBox = document.getElementById('selection-box');
-    this.pointsContainer = document.getElementById('control-points');
     this._addTransforms(this.mid.x, this.mid.y);
 
     // Add event listeners
@@ -29,9 +27,10 @@ class EditablePath {
   }
 
   _addTransforms(x, y) {
+    // TODO: only create transforms on box and points once
     this.shapeTransform = addTransform(this.element, x, y);
-    this.boxTransform = addTransform(this.selectionBox, x, y);
-    this.pointsTransform = addTransform(this.pointsContainer, x, y);
+    this.boxTransform = addTransform(selectionBox, x, y);
+    this.pointsTransform = addTransform(pointsContainer, x, y);
   }
 
   drag(event) {
@@ -89,26 +88,31 @@ class EditablePath {
 
   mouseUp() {
     this.dragging = false;
+    if (toolbarMode === 'Edit points') {
+      this.mid = this.getMidPoint(this.pathData);
+      console.log('mid', this.mid)
+    }
   }
 
   showBoundingBox() {
     // TODO: take into account stroke width
     const bounds = this.getBounds(this.pathData);
-    this.selectionBox.setAttribute('x', bounds.minX);
-    this.selectionBox.setAttribute('y', bounds.minY);
-    this.selectionBox.setAttribute('width', bounds.maxX - bounds.minX);
-    this.selectionBox.setAttribute('height', bounds.maxY - bounds.minY);
-    this.selectionBox.style.display = 'block';
+    selectionBox.setAttribute('x', bounds.minX);
+    selectionBox.setAttribute('y', bounds.minY);
+    selectionBox.setAttribute('width', bounds.maxX - bounds.minX);
+    selectionBox.setAttribute('height', bounds.maxY - bounds.minY);
+    translateElement(selectionBox, this.mid.x, this.mid.y);
+    selectionBox.style.display = 'block';
 
     // this.createBoundingPoints();
   }
 
   hideBoundingBox() {
-    this.selectionBox.style.display = 'none';
+    selectionBox.style.display = 'none';
   }
 
   createBoundingPoints() {
-    this.pointsContainer.innerHTML = '';
+    pointsContainer.innerHTML = '';
 
     const p = this.getBounds(this.pathData);
     const points = [
@@ -122,11 +126,12 @@ class EditablePath {
   }
 
   createEditPoints() {
-    this.pointsContainer.innerHTML = '';
+    pointsContainer.innerHTML = '';
+    // translateElement(pointsContainer, this.mid.x, this.mid.y);
 
     this.controlPoints = this.pathData.map((point) => {
       if (!point.coords) return null;
-      return new ControlPoint(this.pointsContainer, point.coords, this.updatePath.bind(this));
+      return new ControlPoint(point, this.updatePath.bind(this));
     });
   }
 

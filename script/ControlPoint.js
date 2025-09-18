@@ -1,9 +1,11 @@
 class ControlPoint {
-  constructor(container, point, onUpdate) {
-    this.point = point
-    this.container = container
-    this.element = createSVGElement('circle', { cx: point[0], cy: point[1], r: 5 });
-    container.appendChild(this.element);
+  constructor(point, onUpdate) {
+    this.cmd = point.cmd
+    this.coords = point.coords;
+    const coords = point.coords.slice(-2);
+
+    this.element = createSVGElement('circle', { cx: coords[0], cy: coords[1], r: 5 });
+    pointsContainer.appendChild(this.element);
     this.element.addEventListener('mousedown', this.mouseDown.bind(this));
     this.onUpdate = onUpdate;
   }
@@ -31,8 +33,12 @@ class ControlPoint {
   } 
 
   updatePosition(x, y) {
-    this.point[0] = x;
-    this.point[1] = y;
+    const dx = x - this.element.cx.baseVal.value;
+    const dy = y - this.element.cy.baseVal.value;
+    for (let i = 0; i < this.coords.length; i++) {
+      this.coords[i] = (i % 2) ? (this.coords[i] + dy) : (this.coords[i] + dx);
+    }
+
     this.element.setAttribute("cx", x);
     this.element.setAttribute("cy", y);
     if (this.onUpdate) this.onUpdate();
