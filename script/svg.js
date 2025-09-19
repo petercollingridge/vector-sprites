@@ -56,6 +56,14 @@ function makeEditable(element) {
   });
 }
 
+function getAttrs(element) {
+  const attrs = {};
+  for (const attr of element.attributes) {
+    attrs[attr.name] = attr.value;
+  }
+  return attrs;
+}
+
 // Given an SVG element, create a new editable SVG element
 function createEditableElement(element) {
   const newElement = cloneSVGElement(element);

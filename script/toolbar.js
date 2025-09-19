@@ -25,11 +25,8 @@ function initToolbar() {
 function addRect(event) {
   const coords = clientToSVGCoords(event);
   return addEditableElement({
-    tag: 'rect',
-    x: coords.x,
-    y: coords.y,
-    width: 0,
-    height: 0,
+    tag: 'path',
+    d: `M${coords.x} ${coords.y}`,
     ...newShapeStyles,
   });
 }
@@ -57,31 +54,30 @@ function addPolyline(event) {
   });
 }
 
-function startDrag(event) {
-  if (!selectedElement) return;
-  dragOffset = { x: event.clientX, y: event.clientY };
+// function startDrag(event) {
+//   if (!selectedElement) return;
+//   dragOffset = { x: event.clientX, y: event.clientY };
 
-  // Get all the transforms currently on this element
-  const transforms = selectedElement.transform.baseVal;
-  // Ensure the first transform is a translate transform
-  if (transforms.length === 0 ||
-      transforms.getItem(0).type !== SVGTransform.SVG_TRANSFORM_TRANSLATE) {
-    // Create an transform that translates by (0, 0)
-    const translate = selectedElement.ownerSVGElement.createSVGTransform();
-    translate.setTranslate(0, 0);
-    // Add the translation to the front of the transforms list
-    selectedElement.transform.baseVal.insertItemBefore(translate, 0);
-  } else {
-    const matrix = transforms.getItem(0).matrix;
-    dragOffset.x -= matrix.e;
-    dragOffset.y -= matrix.f;
-  }
-}
+//   // Get all the transforms currently on this element
+//   const transforms = selectedElement.transform.baseVal;
+//   // Ensure the first transform is a translate transform
+//   if (transforms.length === 0 ||
+//       transforms.getItem(0).type !== SVGTransform.SVG_TRANSFORM_TRANSLATE) {
+//     // Create an transform that translates by (0, 0)
+//     const translate = selectedElement.ownerSVGElement.createSVGTransform();
+//     translate.setTranslate(0, 0);
+//     // Add the translation to the front of the transforms list
+//     selectedElement.transform.baseVal.insertItemBefore(translate, 0);
+//   } else {
+//     const matrix = transforms.getItem(0).matrix;
+//     dragOffset.x -= matrix.e;
+//     dragOffset.y -= matrix.f;
+//   }
+// }
 
 function dragSelectedElement(event) {
   if (selectedElement) {
     selectedElement.drag(event);
-    // showSelectionBox(selectedElement);
   }
 }
 
@@ -182,6 +178,7 @@ function mouseMoveOnSVG(event) {
 
 function mouseUpOnSVG(event) {
   if (selectedElement) {
+    console.log(selectedElement);
     selectedElement.mouseUp(event);
   }
   dragOffset = false;

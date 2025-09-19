@@ -1,14 +1,14 @@
 // Wrapper for SVG element that allows it to be editable
 
 class EditablePath {
-  constructor(container, element) {
-    this.pathData = this._parsePoints(element.getAttribute('d'));
+  constructor(attrs) {
+    this.pathData = this._parsePoints(attrs.d);
     this.mid = this.getMidPoint(this.pathData);
     this.pathData = this.translatePathData(this.pathData, -this.mid.x, -this.mid.y);
 
     // Create a new SVG node
-    this.element = this._createElement(element, this.pathData);
-    container.appendChild(this.element);
+    this.element = this._createElement(attrs, this.pathData);
+    mainSVG.appendChild(this.element);
 
     // Transform shape to where it's mid point should be
     this.transform = addTransform(this.element, this.mid.x, this.mid.y);
@@ -17,11 +17,10 @@ class EditablePath {
     this.element.addEventListener('mousedown', this.mouseDown.bind(this));
   }
 
-  _createElement(element, pathData) {
-    // Update element path d attribute
+  _createElement(attrs, pathData) {
+    const newElement = createSVGElement('path', attrs);
     const pathString = this._writePathString(pathData);
-    
-    const newElement = element.cloneNode(true);
+    // Update element path d attribute
     newElement.setAttribute('d', pathString);
     return newElement;
   }
@@ -202,14 +201,21 @@ class EditablePath {
 
 // Create an SVG object, based on a set of SVG elements
 // This will create a list of SVGElement object to handle editing and rendering the SVG elements
-function createSvgObject(elements) {
-  const mainSVG = document.getElementById('sprite-elements');
+function createSvgObjectFromElements(elements) {
   mainSVG.innerHTML = '';
 
   // Update svgObject to contain new elements
   svgObject = Array.from(elements).map((element) => {
-    new EditablePath(mainSVG, element);
+    const attrs = getAttrs(element);
+    return new EditablePath(attrs);
   });
   
   return svgObject;
+}
+
+// TODO: Create a function to create path from attrs
+function createSVGPath(attrs) {
+  const element = new EditablePath(attrs);
+  svgObject.push(element);
+  return element;
 }

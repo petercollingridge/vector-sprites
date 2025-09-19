@@ -5,6 +5,7 @@ let svgObject = null;
 let selectedPreview = -1;
 let toolbarMode = 'Move';
 
+const mainSVG = document.getElementById('sprite-elements');
 const selectionBox = document.getElementById('selection-box');
 const pointsContainer = document.getElementById('control-points');
 

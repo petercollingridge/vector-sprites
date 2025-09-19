@@ -2,12 +2,12 @@ class ControlPoint {
   constructor(point, onUpdate) {
     this.cmd = point.cmd
     this.coords = point.coords;
-    const coords = point.coords.slice(-2);
-
-    this.element = createSVGElement('circle', { cx: coords[0], cy: coords[1], r: 5 });
-    pointsContainer.appendChild(this.element);
-    this.element.addEventListener('mousedown', this.mouseDown.bind(this));
     this.onUpdate = onUpdate;
+    
+    const coords = point.coords.slice(-2);
+    this.element = createSVGElement('circle', { cx: coords[0], cy: coords[1], r: 5 });
+    this.element.addEventListener('mousedown', this.mouseDown.bind(this));
+    pointsContainer.appendChild(this.element);
   }
 
   mouseDown(event) {
