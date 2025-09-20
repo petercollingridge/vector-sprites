@@ -29,48 +29,20 @@ function addRect(event) {
 }
 
 function addEllipse(event) {
-  const coords = eventToSVGCoords(event);
-  return addEditableElement({
-    tag: 'ellipse',
-    cx: coords.x,
-    cy: coords.y,
-    rx: 0,
-    ry: 0,
-    ...newShapeStyles,
-  });
+  const {x, y} = clientToSVGCoords(event);
+  let d = `M${x} ${y}`;
+  d += ` C${x + 1} ${y} 0 0 0 0`;
+  d += ` C${x + 1} ${y + 1} 0 0 0 0`;
+  d += ` C${x} ${y + 1} 0 0 0 0`;
+  d += ` C${x + 1} ${y} 0 0 0 0Z`;
+  return addPath({d, ...newShapeStyles});
 }
 
 function addPolyline(event) {
-  const coords = eventToSVGCoords(event);
+  const {x, y} = clientToSVGCoords(event);
   toolbarMode = 'Adding polyline';
-  return addEditableElement({
-    tag: 'polyline',
-    points: `${coords.x},${coords.y}`,
-    ...newShapeStyles,
-    'fill-opacity': 0,
-  });
+  return addPath({d: `M${x} ${y}`, ...newShapeStyles,'fill-opacity': 0});
 }
-
-// function startDrag(event) {
-//   if (!selectedElement) return;
-//   dragOffset = { x: event.clientX, y: event.clientY };
-
-//   // Get all the transforms currently on this element
-//   const transforms = selectedElement.transform.baseVal;
-//   // Ensure the first transform is a translate transform
-//   if (transforms.length === 0 ||
-//       transforms.getItem(0).type !== SVGTransform.SVG_TRANSFORM_TRANSLATE) {
-//     // Create an transform that translates by (0, 0)
-//     const translate = selectedElement.ownerSVGElement.createSVGTransform();
-//     translate.setTranslate(0, 0);
-//     // Add the translation to the front of the transforms list
-//     selectedElement.transform.baseVal.insertItemBefore(translate, 0);
-//   } else {
-//     const matrix = transforms.getItem(0).matrix;
-//     dragOffset.x -= matrix.e;
-//     dragOffset.y -= matrix.f;
-//   }
-// }
 
 function dragSelectedElement(event) {
   if (selectedElement) {
@@ -114,28 +86,35 @@ function scaleEllipse(event) {
 
 function movePolylinePoint(event) {
   if (selectedElement) {
-    const coords = eventToSVGCoords(event);
-    const fixedPoints = selectedElement.getAttribute('points').trim().split(' ').slice(0, -1);
-    selectedElement.setAttribute('points', `${fixedPoints.join(' ')} ${coords.x},${coords.y}`);
+    const {x, y} = eventToSVGCoords(event);
+    selectedElement.points[selectedElement.points.length - 1].updatePosition(x, y);
+    selectedElement.updatePath();
   }
 }
 
-function addPolylinePoint() {
+function addPolylinePoint(event) {
   if (selectedElement) {
-    const points = selectedElement.getAttribute('points').trim();
-    const pointsArr = points.split(' ');
-    const [x1, y1] = pointsArr[pointsArr.length - 1].split(',').map(Number);
+    // const points = selectedElement.getAttribute('points').trim();
+    // const pointsArr = points.split(' ');
+    // const [x1, y1] = pointsArr[pointsArr.length - 1].split(',').map(Number);
+
+
+    const {x, y} = eventToSVGCoords(event);
+    const points = selectedElement.points;
+    const lastPoint = points[points.length - 1];
+    lastPoint.updatePosition(x, y);
 
     // If last two points very close then stop drawing line
-    if (pointsArr.length > 1) {
-      const [x2, y2] = pointsArr[pointsArr.length - 2].split(',').map(Number);
-      const dist = Math.hypot(x2 - x1, y2 - y1);
+    if (points.length > 1) {
+      const prevPoint = points[points.length - 2];
+      const dist = Math.hypot(prevPoint.x - x, prevPoint.y - y);
       if (dist < 3) {
         return endPolyline();
       }
     }
 
-    selectedElement.setAttribute('points', `${points} ${x1},${y1}`);
+    selectedElement.addPoint(x, y);
+    selectedElement.updatePath();
   }
 }
 

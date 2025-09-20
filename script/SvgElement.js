@@ -28,6 +28,12 @@ class EditablePath {
     return newElement;
   }
 
+  addPoint(x, y) {
+    const point = new ControlPoint(x, y, this);
+    this.points.push(point);
+    this.updatePath();
+  }
+
   drag(event) {
     if (this.dragging) {
       const translateX = event.clientX - this.dragOffset.x;
@@ -173,7 +179,6 @@ function createSvgObjectFromElements(elements) {
   return svgObject;
 }
 
-// TODO: Create a function to create path from attrs
 function addPath(attrs) {
   const element = new EditablePath(attrs);
   svgObject.push(element);
