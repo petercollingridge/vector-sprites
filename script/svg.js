@@ -8,16 +8,6 @@ function createSVGElement(tag, attrs) {
   return elem;
 }
 
-function cloneSVGElement(element) {
-  const tag = element.tagName.toLowerCase();
-  const newElement = document.createElementNS(SVG_NS, tag);
-
-  for (const attr of element.attributes) {
-    newElement.setAttribute(attr.name, attr.value);
-  }
-  return newElement;
-}
-
 // Convert a path d string into an array of command objects
 function parseDAttr(dString) {  
     const reDigits = /(-?\d*\.?\d+)/g;
@@ -136,49 +126,12 @@ function clearTransforms(element) {
   }
 }
 
-function makeEditable(element) {
-  element.addEventListener('mousedown', (event) => {
-    if (toolbarMode === 'Move') {
-      selectElement(element);
-      startDrag(event);
-      event.stopPropagation();
-    }
-  });
-}
-
 function getAttrs(element) {
   const attrs = {};
   for (const attr of element.attributes) {
     attrs[attr.name] = attr.value;
   }
   return attrs;
-}
-
-// Given an SVG element, create a new editable SVG element
-function createEditableElement(element) {
-  const newElement = cloneSVGElement(element);
-  makeEditable(newElement);
-  return newElement;
-}
-
-function addEditableElement({ tag, ...attrs }) {
-  const newElement = createSVGElement(tag, attrs);
-  makeEditable(newElement);
-  const elementContainer = document.getElementById('sprite-elements');
-  elementContainer.appendChild(newElement);
-  return newElement;
-}
-
-// Given an HTMLCollection of SVG element, add them to the main-svg elements with the
-// event handlers we need
-function createEditableElements(elements) {
-  const mainSVG = document.getElementById('sprite-elements');
-  mainSVG.innerHTML = '';
-
-  for (const element of elements) {
-    const newElement = createEditableElement(element);
-    mainSVG.appendChild(newElement);
-  }
 }
 
 // Convert mouse event.client coordinates to SVG coordinates
