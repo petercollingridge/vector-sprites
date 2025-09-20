@@ -10,11 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initPreview();
 });
 
-
+// Test conversion functions
 const testDString = initialShape[0].d;
 const controlPoints = dStringToControlPoints(testDString);
-const dString = controlPointsToDString(controlPoints);
-console.log(testDString);
-console.log(controlPoints);
-console.log(dString);
+const dString = controlPointsToDString(controlPoints, true);
+// console.log(testDString);
+// console.log(controlPoints);
+// console.log(dString);
 

@@ -52,7 +52,7 @@ function parseDAttr(dString) {
 }
 
 // Convert a path d string into an array of control points
-function dStringToControlPoints(dString) {
+function dStringToControlPoints(dString, path) {
   const pathData = parseDAttr(dString);
   const points = [];
 
@@ -60,7 +60,7 @@ function dStringToControlPoints(dString) {
     const cmd = pathData[i];
     if (cmd.command !== 'Z' && cmd.coords) {
       const n = cmd.coords.length;
-      const point = {x: cmd.coords[n - 2], y: cmd.coords[n - 1]};
+      const point = new ControlPoint(cmd.coords[n - 2], cmd.coords[n - 1], path);
       if (cmd.command === 'C') {
         // Add control points for Bezier curves
         point.arm1 = { x: cmd.coords[2], y: cmd.coords[3] };
@@ -80,25 +80,29 @@ function dStringToControlPoints(dString) {
   return points;
 }
 
-function controlPointsToDString(points) {
+function controlPointsToDString(points, closed) {
   let dString = '';
   const n = points.length;
   for (let i = 0; i < n; i++) {
     const p = points[i];
     if (i === 0) {
-      dString += `M ${p.x} ${p.y} `;
+      dString += `M${p.x} ${p.y} `;
     } else {
       if (p.arm2 && points[i - 1].arm1) {
-        dString += `C ${points[i - 1].arm2.x} ${points[i - 1].arm2.y}, ${p.arm1.x} ${p.arm1.y}, ${p.x} ${p.y} `;
+        dString += `C${points[i - 1].arm2.x} ${points[i - 1].arm2.y}, ${p.arm1.x} ${p.arm1.y}, ${p.x} ${p.y} `;
       } else {
-        dString += `L ${p.x} ${p.y} `;
+        dString += `L${p.x} ${p.y} `;
       }
     }
   }
 
   // Closed path
-  if (points[0].arm1 && points[n - 1].arm2) {
-    dString += `C ${points[n - 1].arm2.x} ${points[n - 1].arm2.y}, ${points[0].arm1.x} ${points[0].arm1.y}, ${points[0].x} ${points[0].y} Z`;
+  if (closed) {
+    if (points[0].arm1 && points[n - 1].arm2) {
+      dString += `C${points[n - 1].arm2.x} ${points[n - 1].arm2.y}, ${points[0].arm1.x} ${points[0].arm1.y}, ${points[0].x} ${points[0].y} Z`;
+    } else {
+      dString += 'Z';
+    }
   }
 
   return dString.trim();

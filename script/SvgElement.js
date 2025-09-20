@@ -2,12 +2,15 @@
 
 class EditablePath {
   constructor(attrs) {
-    this.pathData = parseDAttr(attrs.d);
-    this.mid = this.getMidPoint(this.pathData);
-    this.pathData = this.translatePathData(this.pathData, -this.mid.x, -this.mid.y);
+    // Extract points and shift so they are centered on the origin
+    this.points = dStringToControlPoints(attrs.d, this);
+    this.mid = this.getMidPoint(this.points);
+    this.translate(-this.mid.x, -this.mid.y);
+    this.closed = true;
+    this.curved = true;
 
     // Create a new SVG node
-    this.element = this._createElement(attrs, this.pathData);
+    this.element = this._createElement(attrs);
     mainSVG.appendChild(this.element);
 
     // Transform shape to where it's mid point should be
@@ -17,9 +20,9 @@ class EditablePath {
     this.element.addEventListener('mousedown', this.mouseDown.bind(this));
   }
 
-  _createElement(attrs, pathData) {
+  _createElement(attrs) {
     const newElement = createSVGElement('path', attrs);
-    const pathString = this._writePathString(pathData);
+    const pathString = controlPointsToDString(this.points, this.closed);
     // Update element path d attribute
     newElement.setAttribute('d', pathString);
     return newElement;
@@ -33,24 +36,17 @@ class EditablePath {
     }
   }
 
-  getBounds(pathData) {
-    // Get the coordinates of the path data
-    // Only works for absolute coordinates and ignores coordinates of control points
-    // i.e. gets the final two digits of a command
-    const coords = pathData
-      .filter(cmd => cmd.coords)
-      .map(cmd => cmd.coords.slice(-2));
-
+  getBounds(points) {
     return {
-      minX: Math.min(...coords.map(p => p[0])),
-      minY: Math.min(...coords.map(p => p[1])),
-      maxX: Math.max(...coords.map(p => p[0])),
-      maxY: Math.max(...coords.map(p => p[1])),
+      minX: Math.min(...points.map(p => p.x)),
+      minY: Math.min(...points.map(p => p.y)),
+      maxX: Math.max(...points.map(p => p.x)),
+      maxY: Math.max(...points.map(p => p.y)),
     };
   }
 
-  getMidPoint(pathData) {
-    const bounds = this.getBounds(pathData);
+  getMidPoint(points) {
+    const bounds = this.getBounds(points);
     return {
       x: (bounds.minX + bounds.maxX) / 2,
       y: (bounds.minY + bounds.maxY) / 2
@@ -76,7 +72,7 @@ class EditablePath {
     } else if (toolbarMode === 'Edit points') {
       this.element.style.cursor = 'default';
       this.hideBoundingBox();
-      this.createEditPoints();
+      this.showControlPoints();
     }
   }
 
@@ -89,7 +85,7 @@ class EditablePath {
 
   showBoundingBox() {
     // TODO: take into account stroke width
-    const bounds = this.getBounds(this.pathData);
+    const bounds = this.getBounds(this.points);
     selectionBox.setAttribute('x', bounds.minX);
     selectionBox.setAttribute('y', bounds.minY);
     selectionBox.setAttribute('width', bounds.maxX - bounds.minX);
@@ -120,14 +116,13 @@ class EditablePath {
     // });
   }
 
-  createEditPoints() {
+  showControlPoints() {
     pointsContainer.innerHTML = '';
     const matrix = this.transform.matrix;
     translateElement(pointsContainer, matrix.e, matrix.f);
 
-    this.controlPoints = this.pathData.map((point) => {
-      if (!point.coords) return null;
-      return new ControlPoint(point, this.updatePath.bind(this));
+    this.points.forEach((point) => {
+      point.createElement();
     });
   }
 
@@ -136,7 +131,8 @@ class EditablePath {
   }
 
   updatePath() {
-    this.element.setAttribute('d', this._writePathString(this.pathData));
+    const pathString = controlPointsToDString(this.points, this.closed);
+    this.element.setAttribute('d', pathString);
   }
 
   updateTranslation(dx, dy) {
@@ -145,16 +141,11 @@ class EditablePath {
     translateElement(pointsContainer, dx, dy);
   }
 
-  translatePathData(pathData, dx, dy) {
+  translate(dx, dy) {
     // Move the points of the path so they are centred on the origin
     // then translate back to its original position
-
-    return pathData.map(({ command, coords }) => {
-      if (!coords) {
-        return { command };
-      }
-      const newCoords = coords.map((value, index) => index % 2 === 0 ? value + dx : value + dy);
-      return { command, coords: newCoords };
+    this.points.forEach((point) => {
+      point.translate(dx, dy);
     });
   }
 

@@ -1,11 +1,14 @@
 class ControlPoint {
-  constructor(point, onUpdate) {
-    this.cmd = point.cmd
-    this.coords = point.coords;
-    this.onUpdate = onUpdate;
-    
-    const coords = point.coords.slice(-2);
-    this.element = createSVGElement('circle', { cx: coords[0], cy: coords[1], r: 5 });
+  constructor(x, y, path) {
+    this.x = x;
+    this.y = y;
+    this.path = path;
+    this.arm1 = null;
+    this.arm2 = null;
+  }
+
+  createElement() {
+    this.element = createSVGElement('circle', { cx: this.x, cy: this.y, r: 5 });
     this.element.addEventListener('mousedown', this.mouseDown.bind(this));
     pointsContainer.appendChild(this.element);
   }
@@ -32,15 +35,28 @@ class ControlPoint {
     this.dragging = false;
   } 
 
+  translate(dx, dy) {
+    this.x += dx;
+    this.y += dy;
+    if (this.arm1) {
+      this.arm1.x += dx;
+      this.arm1.y += dy;
+    }
+    if (this.arm2) {
+      this.arm2.x += dx;
+      this.arm2.y += dy;
+    }
+  }
+
   updatePosition(x, y) {
     const dx = x - this.element.cx.baseVal.value;
     const dy = y - this.element.cy.baseVal.value;
-    for (let i = 0; i < this.coords.length; i++) {
-      this.coords[i] = (i % 2) ? (this.coords[i] + dy) : (this.coords[i] + dx);
-    }
+    this.translate(dx, dy);
 
     this.element.setAttribute("cx", x);
     this.element.setAttribute("cy", y);
-    if (this.onUpdate) this.onUpdate();
+    if (this.path) {
+      this.path.updatePath();
+    }
   }
 }
