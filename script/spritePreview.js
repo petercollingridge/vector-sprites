@@ -73,8 +73,6 @@ function createInitialSVG(container) {
 function updateMainSVG(container) {
   const svgElements = container.querySelector('svg');
   createSvgObjectFromElements(svgElements.children);
-  // createEditableElements(svgElements.children);
-  // deselectElement();
 }
 
 function selectSpriteByContainer(container) {
@@ -90,6 +88,7 @@ function selectSpriteByContainer(container) {
   });
 }
 
+// When sprite is selected, copy its elements to the main SVG
 function selectSprite(index) {
   selectedPreview = index;
   let container;

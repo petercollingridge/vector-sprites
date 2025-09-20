@@ -2,7 +2,7 @@
 
 class EditablePath {
   constructor(attrs) {
-    this.pathData = this._parsePoints(attrs.d);
+    this.pathData = parseDAttr(attrs.d);
     this.mid = this.getMidPoint(this.pathData);
     this.pathData = this.translatePathData(this.pathData, -this.mid.x, -this.mid.y);
 
@@ -143,38 +143,6 @@ class EditablePath {
     this.transform.setTranslate(dx, dy);
     translateElement(selectionBox, dx, dy);
     translateElement(pointsContainer, dx, dy);
-  }
-
-  _parsePoints(dString) {
-    // Convert a path d attribute string into an array of command objects
-    const reCommands = /([ACHLMQSTVZ])([-\+\d\.\s,e]*)/gi;
-    const reDigits = /(-?\d*\.?\d+)/g;
-    const pathData = [];
-
-    // Converts a string of digits to an array of floats
-    const getDigits = function(digitString) {
-      const digits = [];
-      
-      if (digitString) {
-        let digit;
-        while (digit = reDigits.exec(digitString)) {
-          digits.push(parseFloat(digit[1]));
-        }
-      }
-      return digits;
-    };
-
-    let commands;
-    while (commands = reCommands.exec(dString)) {
-      const commandValues = { command: commands[1] };
-      const digits = getDigits(commands[2]);
-      if (digits && digits.length) {
-        commandValues.coords = digits;
-      }
-      pathData.push(commandValues);
-    }
-
-    return pathData;
   }
 
   translatePathData(pathData, dx, dy) {

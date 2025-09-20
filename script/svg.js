@@ -8,6 +8,78 @@ function createSVGElement(tag, attrs) {
   return elem;
 }
 
+function cloneSVGElement(element) {
+  const tag = element.tagName.toLowerCase();
+  const newElement = document.createElementNS(SVG_NS, tag);
+
+  for (const attr of element.attributes) {
+    newElement.setAttribute(attr.name, attr.value);
+  }
+  return newElement;
+}
+
+// Convert a path d string into an array of command objects
+function parseDAttr(dString) {  
+    const reDigits = /(-?\d*\.?\d+)/g;
+
+    // Converts a string of digits to an array of floats
+    const getDigits = function(digitString) {
+      const digits = [];
+      
+      if (digitString) {
+        let digit;
+        while (digit = reDigits.exec(digitString)) {
+          digits.push(parseFloat(digit[1]));
+        }
+      }
+      return digits;
+    };
+
+    let commands;
+    const pathData = [];
+    const reCommands = /([ACHLMQSTVZ])([-\+\d\.\s,e]*)/gi;
+
+    while (commands = reCommands.exec(dString)) {
+      const commandValues = { command: commands[1] };
+      const digits = getDigits(commands[2]);
+      if (digits && digits.length) {
+        commandValues.coords = digits;
+      }
+      pathData.push(commandValues);
+    }
+
+    return pathData;
+}
+
+// Convert a path d string into an array of control points
+function dStringToControlPoints(dString) {
+  const pathData = parseDAttr(dString);
+  const points = [];
+
+  for (let i = 0; i < pathData.length; i++) {
+    const cmd = pathData[i];
+    if (cmd.command !== 'Z' && cmd.coords) {
+      const n = cmd.coords.length;
+      const point = {x: cmd.coords[n - 2], y: cmd.coords[n - 1]};
+      if (cmd.command === 'C') {
+        // Add control points for Bezier curves
+        point.arm1 = { x: cmd.coords[2], y: cmd.coords[3] };
+        points[points.length - 1].arm2 = { x: cmd.coords[0], y: cmd.coords[1] };
+      }
+      points.push(point);
+    }
+  }
+
+  // Close path
+  const n = points.length;
+  if (pathData[pathData.length - 1].command === 'Z' && points[0].x === points[n - 1].x && points[0].y === points[n - 1].y) {
+    points[0].arm1 = points[n - 1].arm1;
+    points.splice(n - 1, 1);
+  }
+  
+  return points;
+}
+
 function addTransform(element, dx, dy) {
   // Try to get existing translation
   const transforms = element.transform.baseVal;
@@ -34,16 +106,6 @@ function clearTransforms(element) {
   while (transforms.numberOfItems > 0) {
     transforms.removeItem(0);
   }
-}
-
-function cloneSVGElement(element) {
-  const tag = element.tagName.toLowerCase();
-  const newElement = document.createElementNS(SVG_NS, tag);
-
-  for (const attr of element.attributes) {
-    newElement.setAttribute(attr.name, attr.value);
-  }
-  return newElement;
 }
 
 function makeEditable(element) {
