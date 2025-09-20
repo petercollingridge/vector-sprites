@@ -160,7 +160,7 @@ function selectElement(element) {
 // Called when selecting a different element
 function deselectCurrentElement() {
   if (selectedElement) {
-    selectedElement.style.cursor = 'pointer';
+    selectedElement.element.style.cursor = 'pointer';
   }
 }
 
@@ -169,11 +169,8 @@ function deselectElement() {
   deselectCurrentElement();
   selectedElement = null;
   emptyEditElementPanel();
+  selectionBox.style.display = 'none';
 
-  const selectionBox = document.getElementById('selection-box');
-  if (selectionBox) {
-    selectionBox.style.display = 'none';
-  }
 }
 
 // Update the selected element with a dict of attributes
