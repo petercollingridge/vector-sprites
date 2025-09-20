@@ -80,6 +80,30 @@ function dStringToControlPoints(dString) {
   return points;
 }
 
+function controlPointsToDString(points) {
+  let dString = '';
+  const n = points.length;
+  for (let i = 0; i < n; i++) {
+    const p = points[i];
+    if (i === 0) {
+      dString += `M ${p.x} ${p.y} `;
+    } else {
+      if (p.arm2 && points[i - 1].arm1) {
+        dString += `C ${points[i - 1].arm2.x} ${points[i - 1].arm2.y}, ${p.arm1.x} ${p.arm1.y}, ${p.x} ${p.y} `;
+      } else {
+        dString += `L ${p.x} ${p.y} `;
+      }
+    }
+  }
+
+  // Closed path
+  if (points[0].arm1 && points[n - 1].arm2) {
+    dString += `C ${points[n - 1].arm2.x} ${points[n - 1].arm2.y}, ${points[0].arm1.x} ${points[0].arm1.y}, ${points[0].x} ${points[0].y} Z`;
+  }
+
+  return dString.trim();
+}
+
 function addTransform(element, dx, dy) {
   // Try to get existing translation
   const transforms = element.transform.baseVal;
