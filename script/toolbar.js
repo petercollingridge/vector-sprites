@@ -23,13 +23,14 @@ function initToolbar() {
 }
 
 function addRect(event) {
-  const {x, y} = clientToSVGCoords(event);
+  const {x, y} = eventToSVGCoords(event);
+  console.log('Start', x, y);
   const d = `M${x} ${y} L${x + 1} ${y} L${x + 1} ${y + 1} L${x} ${y + 1} Z`;
   return addPath({d, ...newShapeStyles});
 }
 
 function addEllipse(event) {
-  const {x, y} = clientToSVGCoords(event);
+  const {x, y} = eventToSVGCoords(event);
   let d = `M${x} ${y}`;
   d += ` C${x + 1} ${y} 0 0 0 0`;
   d += ` C${x + 1} ${y + 1} 0 0 0 0`;
@@ -52,17 +53,16 @@ function dragSelectedElement(event) {
 
 function scaleRect(event) {
   if (selectedElement && dragOffset) {
-    const currentPosition = { x: event.clientX, y: event.clientY };
+    const currentPosition = eventToSVGCoords(event);
     const x = Math.min(dragOffset.x, currentPosition.x);
     const y = Math.min(dragOffset.y, currentPosition.y);
-    const pos = clientToSVGCoords(x, y);
     const width = Math.abs(currentPosition.x - dragOffset.x);
     const height = Math.abs(currentPosition.y - dragOffset.y);
 
-    selectedElement.points[0].updatePosition(pos.x, pos.y);
-    selectedElement.points[1].updatePosition(pos.x + width, pos.y);
-    selectedElement.points[2].updatePosition(pos.x + width, pos.y + height);
-    selectedElement.points[3].updatePosition(pos.x, pos.y + height);
+    selectedElement.points[0].updatePosition(x, y);
+    selectedElement.points[1].updatePosition(x + width, y);
+    selectedElement.points[2].updatePosition(x + width, y + height);
+    selectedElement.points[3].updatePosition(x, y + height);
     selectedElement.updatePath();
   }
 }
@@ -141,8 +141,7 @@ function mouseDownOnSVG(event) {
   const func = mouseDownFunctions[toolbarMode];
   if (func) {
     selectedElement = func(event);
-    console.log(selectedElement)
-    dragOffset = { x: event.clientX, y: event.clientY };
+    dragOffset = eventToSVGCoords(event);
   }
 }
 

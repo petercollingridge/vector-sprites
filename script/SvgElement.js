@@ -5,7 +5,7 @@ class EditablePath {
     // Extract points and shift so they are centered on the origin
     this.points = dStringToControlPoints(attrs.d, this);
     this.mid = this.getMidPoint(this.points);
-    this.translate(-this.mid.x, -this.mid.y);
+    // this.translate(-this.mid.x, -this.mid.y);
     this.closed = attrs.d.trim().endsWith('Z');
     this.curved = attrs.d.includes('C');
 
@@ -14,7 +14,8 @@ class EditablePath {
     mainSVG.appendChild(this.element);
 
     // Transform shape to where it's mid point should be
-    this.transform = addTransform(this.element, this.mid.x, this.mid.y);
+    // this.transform = addTransform(this.element, this.mid.x, this.mid.y);
+    this.transform = addTransform(this.element, 0, 0);
 
     // Add event listeners
     this.element.addEventListener('mousedown', this.mouseDown.bind(this));
