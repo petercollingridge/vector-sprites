@@ -6,8 +6,8 @@ class EditablePath {
     this.points = dStringToControlPoints(attrs.d, this);
     this.mid = this.getMidPoint(this.points);
     this.translate(-this.mid.x, -this.mid.y);
-    this.closed = true;
-    this.curved = true;
+    this.closed = attrs.d.trim().endsWith('Z');
+    this.curved = attrs.d.includes('C');
 
     // Create a new SVG node
     this.element = this._createElement(attrs);
@@ -174,7 +174,7 @@ function createSvgObjectFromElements(elements) {
 }
 
 // TODO: Create a function to create path from attrs
-function createSVGPath(attrs) {
+function addPath(attrs) {
   const element = new EditablePath(attrs);
   svgObject.push(element);
   return element;

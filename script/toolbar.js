@@ -23,12 +23,9 @@ function initToolbar() {
 }
 
 function addRect(event) {
-  const coords = clientToSVGCoords(event);
-  return addEditableElement({
-    tag: 'path',
-    d: `M${coords.x} ${coords.y}`,
-    ...newShapeStyles,
-  });
+  const {x, y} = clientToSVGCoords(event);
+  const d = `M${x} ${y} L${x + 1} ${y} L${x + 1} ${y + 1} L${x} ${y + 1} Z`;
+  return addPath({d, ...newShapeStyles});
 }
 
 function addEllipse(event) {
@@ -89,12 +86,12 @@ function scaleRect(event) {
     const pos = clientToSVGCoords(x, y);
     const width = Math.abs(currentPosition.x - dragOffset.x);
     const height = Math.abs(currentPosition.y - dragOffset.y);
-    updateSelectedElement({
-      x: pos.x,
-      y: pos.y,
-      width: width,
-      height: height
-    });
+
+    selectedElement.points[0].updatePosition(pos.x, pos.y);
+    selectedElement.points[1].updatePosition(pos.x + width, pos.y);
+    selectedElement.points[2].updatePosition(pos.x + width, pos.y + height);
+    selectedElement.points[3].updatePosition(pos.x, pos.y + height);
+    selectedElement.updatePath();
   }
 }
 
@@ -165,6 +162,7 @@ function mouseDownOnSVG(event) {
   const func = mouseDownFunctions[toolbarMode];
   if (func) {
     selectedElement = func(event);
+    console.log(selectedElement)
     dragOffset = { x: event.clientX, y: event.clientY };
   }
 }

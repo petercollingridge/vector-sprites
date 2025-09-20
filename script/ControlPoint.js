@@ -27,7 +27,7 @@ class ControlPoint {
     if (this.dragging) {
       const translateX = event.clientX - this.dragOffset.x;
       const translateY = event.clientY - this.dragOffset.y;
-      this.updatePosition(translateX, translateY);
+      this.updateElementPosition(translateX, translateY);
     }
   }
 
@@ -49,8 +49,14 @@ class ControlPoint {
     }
   }
 
-  // Update position of the control point element
   updatePosition(x, y) {
+    const dx = x - this.x;
+    const dy = y - this.y;
+    this.translate(dx, dy); 
+  }
+
+  // Update position of the control point element
+  updateElementPosition(x, y) {
     const dx = x - this.element.cx.baseVal.value;
     const dy = y - this.element.cy.baseVal.value;
     this.translate(dx, dy);
