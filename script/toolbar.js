@@ -178,7 +178,6 @@ function mouseMoveOnSVG(event) {
 
 function mouseUpOnSVG(event) {
   if (selectedElement) {
-    console.log(selectedElement);
     selectedElement.mouseUp(event);
   }
   dragOffset = false;

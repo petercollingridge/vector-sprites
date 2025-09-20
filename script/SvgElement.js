@@ -116,6 +116,7 @@ class EditablePath {
     // });
   }
 
+  // Create SVG element for this path's control points
   showControlPoints() {
     pointsContainer.innerHTML = '';
     const matrix = this.transform.matrix;

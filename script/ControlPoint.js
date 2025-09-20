@@ -35,6 +35,7 @@ class ControlPoint {
     this.dragging = false;
   } 
 
+  // Move the control point and its arms
   translate(dx, dy) {
     this.x += dx;
     this.y += dy;
@@ -48,6 +49,7 @@ class ControlPoint {
     }
   }
 
+  // Update position of the control point element
   updatePosition(x, y) {
     const dx = x - this.element.cx.baseVal.value;
     const dy = y - this.element.cy.baseVal.value;
