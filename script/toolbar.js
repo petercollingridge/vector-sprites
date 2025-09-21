@@ -1,9 +1,3 @@
-const newShapeStyles = {
-    fill: 'white',
-    stroke: 'black',
-    'stroke-width': 2
-};
-
 // Add event handlers to toolbar button to activate the respective tool
 function initToolbar() {
 	const toolbar = document.querySelector('.toolbar');
@@ -24,7 +18,6 @@ function initToolbar() {
 
 function addRect(event) {
   const {x, y} = eventToSVGCoords(event);
-  console.log('Start', x, y);
   const d = `M${x} ${y} L${x + 1} ${y} L${x + 1} ${y + 1} L${x} ${y + 1} Z`;
   return addPath({d, ...newShapeStyles});
 }
@@ -42,7 +35,7 @@ function addEllipse(event) {
 function addPolyline(event) {
   const {x, y} = clientToSVGCoords(event);
   toolbarMode = 'Adding polyline';
-  return addPath({d: `M${x} ${y}`, ...newShapeStyles,'fill-opacity': 0});
+  return addPath({d: `M${x} ${y}`, ...newShapeStyles, 'fill-opacity': 0});
 }
 
 function dragSelectedElement(event) {
@@ -87,30 +80,42 @@ function scaleEllipse(event) {
 function movePolylinePoint(event) {
   if (selectedElement) {
     const {x, y} = eventToSVGCoords(event);
-    selectedElement.points[selectedElement.points.length - 1].updatePosition(x, y);
+    const points = selectedElement.points;
+    const n = points.length;
+    points[n - 1].updatePosition(x, y);
     selectedElement.updatePath();
+
+    if (n > 2) {
+      const dist = Math.hypot(points[0].x - x, points[0].y - y);
+      selectedElement.element.style['fill-opacity'] = dist <= 4 ? 0.3 : 0;
+    }
   }
 }
 
 function addPolylinePoint(event) {
   if (selectedElement) {
-    // const points = selectedElement.getAttribute('points').trim();
-    // const pointsArr = points.split(' ');
-    // const [x1, y1] = pointsArr[pointsArr.length - 1].split(',').map(Number);
-
-
     const {x, y} = eventToSVGCoords(event);
     const points = selectedElement.points;
-    const lastPoint = points[points.length - 1];
+    const n = points.length;
+    const lastPoint = points[n - 1];
     lastPoint.updatePosition(x, y);
 
-    // If last two points very close then stop drawing line
-    if (points.length > 1) {
-      const prevPoint = points[points.length - 2];
-      const dist = Math.hypot(prevPoint.x - x, prevPoint.y - y);
-      if (dist < 3) {
+    if (n > 1) {
+      // If last two points very close then stop drawing line
+      let dist = Math.hypot(points[n - 2].x - x, points[n - 2].y - y);
+      if (dist <= 4) {
         return endPolyline();
       }
+
+      // If close to start point then create a closed shape
+      dist = Math.hypot(points[0].x - x, points[0].y - y);
+      if (dist <= 4) {
+        selectedElement.closed = true;
+        selectedElement.points.splice(n - 1, 1); // Remove last point
+        selectedElement.updatePath();
+        return endPolyline();
+      }
+
     }
 
     selectedElement.addPoint(x, y);

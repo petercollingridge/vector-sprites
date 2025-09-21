@@ -11,6 +11,12 @@ const pointsContainer = document.getElementById('control-points');
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
+const newShapeStyles = {
+    fill: '#007bff',
+    stroke: 'black',
+    'stroke-width': 2
+};
+
 const initialShape = [
   {
     tag: 'path',
