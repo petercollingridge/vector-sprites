@@ -25,10 +25,10 @@ function addRect(event) {
 function addEllipse(event) {
   const {x, y} = eventToSVGCoords(event);
   let d = `M${x} ${y}`;
-  d += ` C${x + 1} ${y} 0 0 0 0`;
-  d += ` C${x + 1} ${y + 1} 0 0 0 0`;
-  d += ` C${x} ${y + 1} 0 0 0 0`;
-  d += ` C${x + 1} ${y} 0 0 0 0Z`;
+  d += ` C0 0 0 0 ${x + 1} ${y}`;
+  d += ` C0 0 0 0 ${x + 1} ${y + 1}`;
+  d += ` C0 0 0 0 ${x} ${y + 1}`;
+  d += ` C0 0 0 0 ${x} ${y} Z`;
   return addPath({d, ...newShapeStyles});
 }
 
@@ -44,14 +44,18 @@ function dragSelectedElement(event) {
   }
 }
 
+// Get bounding box from two points
+const getBounds = (p1, p2) => ({
+  x: Math.min(p1.x, p2.x),
+  y: Math.min(p1.y, p2.y),
+  width: Math.abs(p2.x - p1.x),
+  height: Math.abs(p2.y - p1.y),
+});
+
 function scaleRect(event) {
   if (selectedElement && dragOffset) {
     const currentPosition = eventToSVGCoords(event);
-    const x = Math.min(dragOffset.x, currentPosition.x);
-    const y = Math.min(dragOffset.y, currentPosition.y);
-    const width = Math.abs(currentPosition.x - dragOffset.x);
-    const height = Math.abs(currentPosition.y - dragOffset.y);
-
+    const {x, y, width, height} = getBounds(dragOffset, currentPosition);
     selectedElement.points[0].updatePosition(x, y);
     selectedElement.points[1].updatePosition(x + width, y);
     selectedElement.points[2].updatePosition(x + width, y + height);
@@ -62,18 +66,19 @@ function scaleRect(event) {
 
 function scaleEllipse(event) {
   if (selectedElement && dragOffset) {
-    const currentPosition = { x: event.clientX, y: event.clientY };
-    const x = Math.min(dragOffset.x, currentPosition.x);
-    const y = Math.min(dragOffset.y, currentPosition.y);
-    const width = Math.abs(currentPosition.x - dragOffset.x);
-    const height = Math.abs(currentPosition.y - dragOffset.y);
-    const pos = clientToSVGCoords(x + width / 2, y + height / 2);
-    updateSelectedElement({
-      cx: pos.x,
-      cy: pos.y,
-      rx: width / 2,
-      ry: height / 2
-    });
+    const currentPosition = eventToSVGCoords(event);
+    const {x, y, width, height} = getBounds(dragOffset, currentPosition);
+    const mx = x + width / 2;
+    const my = y + height / 2;
+    const dx = width / 2 * 0.552; // Approximation for control point offset
+    const dy = height / 2 * 0.552;
+
+    selectedElement.points[0].updatePointAndArms(mx, y, mx - dx, y, mx + dx, y);
+    selectedElement.points[1].updatePointAndArms(x + width, my, x + width, my - dy, x + width, my + dy);
+
+    selectedElement.points[2].updatePointAndArms(mx, y + height, mx + dx, y + height, mx - dx, y + height);
+    selectedElement.points[3].updatePointAndArms(x, my, x, my + dy, x, my - dy);
+    selectedElement.updatePath();
   }
 }
 

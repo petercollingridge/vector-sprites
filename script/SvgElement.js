@@ -4,6 +4,7 @@ class EditablePath {
   constructor(attrs) {
     // Extract points and shift so they are centered on the origin
     this.points = dStringToControlPoints(attrs.d, this);
+    console.log(this.points)
     this.mid = this.getMidPoint(this.points);
     // this.translate(-this.mid.x, -this.mid.y);
     this.closed = attrs.d.trim().endsWith('Z');
