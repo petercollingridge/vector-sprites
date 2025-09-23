@@ -88,21 +88,23 @@ function scaleEllipse(event) {
   }
 }
 
+const areClose = (p, x, y, threshold = 4) => Math.hypot(p.x - x, p.y - y) <= threshold;
+
 function movePolylinePoint(event) {
   if (selectedElement) {
     const {x, y} = eventToSVGCoords(event);
     const points = selectedElement.points;
-    const n = points.length;
-    points[n - 1].updatePosition(x, y);
+    points[points.length - 1].updatePosition(x, y);
+
     selectedElement.updatePath();
-    if (n > 2) {
-      const dist = Math.hypot(points[0].x - x, points[0].y - y);
-      selectedElement.element.style['fill-opacity'] = dist <= 4 ? 0.3 : 0;
+    if (points.length > 2) {
+      const fillShape = areClose(points[0], x, y);
+      selectedElement.element.style['fill-opacity'] = fillShape ? 0.3 : 0;
     }
   }
 }
 
-function addPolylinePoint(event) {
+function addPathPoint(event, isCurved = false) {
   if (selectedElement) {
     const {x, y} = eventToSVGCoords(event);
     const points = selectedElement.points;
@@ -111,24 +113,40 @@ function addPolylinePoint(event) {
     lastPoint.updatePosition(x, y);
 
     if (n > 1) {
-      // If last two points very close then stop drawing line
-      let dist = Math.hypot(points[n - 2].x - x, points[n - 2].y - y);
-      if (dist <= 4) {
+      // If last two points close then stop drawing line
+      if (areClose(points[n - 2], x, y)) {
         return endPolyline();
       }
 
-      // If close to start point then create a closed shape
-      dist = Math.hypot(points[0].x - x, points[0].y - y);
-      if (dist <= 4) {
+      // If end point is close to start point then create a closed shape
+      if (areClose(points[0], x, y)) {
         selectedElement.closed = true;
-        selectedElement.points.splice(n - 1, 1); // Remove last point
+        selectedElement.points.splice(n - 1, 1);
         selectedElement.updatePath();
         return endPolyline();
       }
 
     }
-
+    
     selectedElement.addPoint(x, y);
+    if (isCurved && n > 2) {
+      // Set control points for smooth curve
+      const p0 = points[n - 3];
+      const p1 = points[n - 2];
+      const p2 = points[n - 1];
+
+      let dx = 0.25 * (p2.x - p0.x);
+      let dy = 0.25 * (p2.y - p0.y);
+
+      if (dx > 0 || dy > 0) {
+        p0.arm1 = { x: p0.x - dy, y: p0.y + dx };
+        p0.arm2 = { x: p0.x + dy, y: p0.y - dx };
+        p1.arm1 = { x: p1.x - dx, y: p1.y - dy };
+        p1.arm2 = { x: p1.x + dx, y: p1.y + dy };
+        p2.arm1 = { x: p2.x + dy, y: p2.y - dx };
+        p2.arm2 = { x: p2.x - dy, y: p2.y + dx };
+      }
+    }
     selectedElement.updatePath();
   }
 }
@@ -177,7 +195,9 @@ function mouseUpOnSVG(event) {
 
   dragOffset = false;
   if (toolbarMode === 'Adding polyline') {
-    addPolylinePoint(event);
+    addPathPoint(event);
+  } else if (toolbarMode === 'Adding curved line') {
+    addPathPoint(event, true);
   } else {
     updatePreview();
   }
