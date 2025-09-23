@@ -33,8 +33,14 @@ function addEllipse(event) {
 }
 
 function addPolyline(event) {
-  const {x, y} = clientToSVGCoords(event);
   toolbarMode = 'Adding polyline';
+  const {x, y} = clientToSVGCoords(event);
+  return addPath({d: `M${x} ${y}`, ...newShapeStyles, 'fill-opacity': 0});
+}
+
+function addCurvedLine(event) {
+  toolbarMode = 'Adding curved line';
+  const {x, y} = clientToSVGCoords(event);
   return addPath({d: `M${x} ${y}`, ...newShapeStyles, 'fill-opacity': 0});
 }
 
@@ -45,7 +51,7 @@ function dragSelectedElement(event) {
 }
 
 // Get bounding box from two points
-const getBounds = (p1, p2) => ({
+const getBoundsFromPoints = (p1, p2) => ({
   x: Math.min(p1.x, p2.x),
   y: Math.min(p1.y, p2.y),
   width: Math.abs(p2.x - p1.x),
@@ -55,7 +61,7 @@ const getBounds = (p1, p2) => ({
 function scaleRect(event) {
   if (selectedElement && dragOffset) {
     const currentPosition = eventToSVGCoords(event);
-    const {x, y, width, height} = getBounds(dragOffset, currentPosition);
+    const {x, y, width, height} = getBoundsFromPoints(dragOffset, currentPosition);
     selectedElement.points[0].updatePosition(x, y);
     selectedElement.points[1].updatePosition(x + width, y);
     selectedElement.points[2].updatePosition(x + width, y + height);
@@ -67,7 +73,7 @@ function scaleRect(event) {
 function scaleEllipse(event) {
   if (selectedElement && dragOffset) {
     const currentPosition = eventToSVGCoords(event);
-    const {x, y, width, height} = getBounds(dragOffset, currentPosition);
+    const {x, y, width, height} = getBoundsFromPoints(dragOffset, currentPosition);
     const mx = x + width / 2;
     const my = y + height / 2;
     const dx = width / 2 * 0.552; // Approximation for control point offset
@@ -89,7 +95,6 @@ function movePolylinePoint(event) {
     const n = points.length;
     points[n - 1].updatePosition(x, y);
     selectedElement.updatePath();
-
     if (n > 2) {
       const dist = Math.hypot(points[0].x - x, points[0].y - y);
       selectedElement.element.style['fill-opacity'] = dist <= 4 ? 0.3 : 0;
@@ -134,9 +139,11 @@ function endPolyline() {
 }
 
 const mouseDownFunctions = {
+  'Move': deselectElement,
   'Add rectangle': addRect,
   'Add ellipse': addEllipse,
   'Add polyline': addPolyline,
+  'Add curved line': addCurvedLine,
 };
 
 const mouseMoveFunctions = {
@@ -145,6 +152,7 @@ const mouseMoveFunctions = {
   'Add rectangle': scaleRect,
   'Add ellipse': scaleEllipse,
   'Adding polyline': movePolylinePoint,
+  'Adding curved line': movePolylinePoint,
 };
 
 function mouseDownOnSVG(event) {
@@ -166,6 +174,7 @@ function mouseUpOnSVG(event) {
   if (selectedElement) {
     selectedElement.mouseUp(event);
   }
+
   dragOffset = false;
   if (toolbarMode === 'Adding polyline') {
     addPolylinePoint(event);
