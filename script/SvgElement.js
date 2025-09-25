@@ -62,9 +62,9 @@ class EditablePath {
 
   mouseDown(event) {
     renderEditElementPanel(this.element);
-    event.stopPropagation();
 
     if (toolbarMode === 'Move') {
+      event.stopPropagation();
       this.dragging = true;
       // deselectCurrentElement();
       selectedElement = this;
@@ -78,6 +78,7 @@ class EditablePath {
       };
       this.showBoundingBox();
     } else if (toolbarMode === 'Edit points') {
+      event.stopPropagation();
       this.element.style.cursor = 'default';
       this.hideBoundingBox();
       this.showControlPoints();

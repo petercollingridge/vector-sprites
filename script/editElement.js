@@ -19,12 +19,22 @@ const PARSE_STYLE_PROP = {
   }
 };
 
-function createEditableStyle(editorDiv, element, prop, value) {
-  // Create input element for editing
-  const input = document.createElement('input');
-  input.type = prop.type;
-  input.value = PARSE_STYLE_PROP[prop.type](value);
-  input.id = prop.name + '-input';
+function createInputElement(name, type, value, container) {
+  const input = createElement('input', {type, value, id: name + '-input' });
+  const label = createElement('label', {}, name + ': ');
+  label.appendChild(input);
+  container.appendChild(label);
+  return input;
+}
+
+function createTransformEditOptions(name, editorDiv, value, onUpdate) {
+  const input = createInputElement(name, 'number', value, editorDiv);
+
+}
+
+// Create input element for editing
+function createStyleEditOptions(editorDiv, element, prop, value) {
+  const input = createInputElement(prop.name, prop.type, value, editorDiv);
 
   input.addEventListener('input', (e) => {
     let newValue = e.target.value;
@@ -35,12 +45,6 @@ function createEditableStyle(editorDiv, element, prop, value) {
     }
     element.setAttribute(prop.name, newValue);
   });
-
-  // Create label for input
-  const label = document.createElement('label');
-  label.textContent = prop.name + ': ';
-  label.appendChild(input);
-  editorDiv.appendChild(label);
 }
 
 // When a shape is selected, render its properties in the edit panel
@@ -48,34 +52,48 @@ function renderEditElementPanel(element) {
   const editorDiv = document.getElementById('edit-element');
   editorDiv.innerHTML = '';
 
-  if (element && element instanceof SVGElement) {
-    const computedStyle = window.getComputedStyle(element);
-
-    // Delete element button
-    const deleteButton = document.createElement('button');
-    deleteButton.className = 'delete-btn';
-    deleteButton.textContent = 'Delete Element';
-    deleteButton.addEventListener('click', () => {
-      deselectElement();
-      element.remove();
-      emptyEditElementPanel();
-    });
-    editorDiv.appendChild(deleteButton);
-
-    // Header
-    const header = document.createElement('h3');
-    header.textContent = 'Styles';
-    editorDiv.appendChild(header);
-
-    // Edit styles
-    STYLE_PROPS_LIST.forEach(prop => {
-      const value = computedStyle.getPropertyValue(prop.name);
-      createEditableStyle(editorDiv, element, prop, value);
-    });
-
-  } else {
+  if (!element) {
     emptyEditElementPanel();
+    return;
   }
+
+  const computedStyle = window.getComputedStyle(element);
+
+  // Delete element button
+  const deleteButton = document.createElement('button');
+  deleteButton.className = 'delete-btn';
+  deleteButton.textContent = 'Delete Element';
+  deleteButton.addEventListener('click', () => {
+    deselectElement();
+    element.remove();
+    emptyEditElementPanel();
+  });
+  editorDiv.appendChild(deleteButton);
+
+  // Position and size (x, y, width, height)
+  editorDiv.appendChild(createElement('h3', {}, 'Position & Size'));
+  const transforms = element.transform.baseVal;
+  const matrix = transforms.getItem(0).matrix;
+  const translateX = createInputElement('x', 'number', matrix.e, editorDiv);
+  const translateY = createInputElement('y', 'number', matrix.f, editorDiv);
+  translateX.addEventListener('input', (e) => {
+    const newX = parseFloat(e.target.value);
+    if (isNaN(newX)) return;
+    selectedElement.updateTranslation(newX, matrix.f);
+  });
+  translateY.addEventListener('input', (e) => {
+    const newY = parseFloat(e.target.value);
+    if (isNaN(newY)) return;
+    selectedElement.updateTranslation(matrix.e, newY);
+  });
+  
+  // Edit styles
+  editorDiv.appendChild(createElement('h3', {}, 'Styles'));
+  STYLE_PROPS_LIST.forEach(prop => {
+    let value = computedStyle.getPropertyValue(prop.name);
+    value = PARSE_STYLE_PROP[prop.type](value);
+    createStyleEditOptions(editorDiv, element, prop, value);
+  });
 }
 
 function emptyEditElementPanel() {
