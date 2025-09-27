@@ -26,3 +26,8 @@
   fill: red;
   cursor: move;
 }
+
+#main-svg #control-arms circle {
+  fill: #c00;
+  cursor: move;
+}

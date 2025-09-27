@@ -9,6 +9,7 @@ let toolbarMode = 'Move';
 const mainSVG = document.getElementById('sprite-elements');
 const selectionBox = document.getElementById('selection-box');
 const pointsContainer = document.getElementById('control-points');
+const armsContainer = document.getElementById('control-arms');
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 

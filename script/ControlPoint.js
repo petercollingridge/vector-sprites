@@ -45,6 +45,24 @@ class ControlPoint {
       x: event.clientX - this.element.cx.baseVal.value,
       y: event.clientY - this.element.cy.baseVal.value
     };
+
+    this.createControlArmPoints();
+  }
+
+  createControlArmPoints() {
+    armsContainer.innerHTML = '';
+    if (this.arm1) {
+      this.controlPoint1 = this._createControlArmPoints(this.arm1);
+    }
+    if (this.arm2) {
+      this.controlPoint2 = this._createControlArmPoints(this.arm2);
+    }
+  }
+
+  _createControlArmPoints(p){
+    const controlPoint = createSVGElement('circle', { cx: p.x, cy: p.y, r: 4 });
+    armsContainer.appendChild(controlPoint);
+    return controlPoint;
   }
 
   drag(event) {
