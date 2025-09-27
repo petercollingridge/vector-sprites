@@ -40,6 +40,12 @@ class EditablePath {
       const translateX = event.clientX - this.dragOffset.x;
       const translateY = event.clientY - this.dragOffset.y;
       this.updateTranslation(translateX, translateY);
+      if (inputElements.translateX) {
+        inputElements.translateX.value = translateX;
+      }
+      if (inputElements.translateY) {
+        inputElements.translateY.value = translateY;
+      }
     }
   }
 

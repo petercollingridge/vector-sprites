@@ -74,18 +74,23 @@ function renderEditElementPanel(element) {
   editorDiv.appendChild(createElement('h3', {}, 'Position & Size'));
   const transforms = element.transform.baseVal;
   const matrix = transforms.getItem(0).matrix;
+
   const translateX = createInputElement('x', 'number', matrix.e, editorDiv);
-  const translateY = createInputElement('y', 'number', matrix.f, editorDiv);
   translateX.addEventListener('input', (e) => {
     const newX = parseFloat(e.target.value);
     if (isNaN(newX)) return;
     selectedElement.updateTranslation(newX, matrix.f);
   });
+  
+  const translateY = createInputElement('y', 'number', matrix.f, editorDiv);
   translateY.addEventListener('input', (e) => {
     const newY = parseFloat(e.target.value);
     if (isNaN(newY)) return;
     selectedElement.updateTranslation(matrix.e, newY);
   });
+
+  inputElements.translateX = translateX;
+  inputElements.translateY = translateY;
   
   // Edit styles
   editorDiv.appendChild(createElement('h3', {}, 'Styles'));
