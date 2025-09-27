@@ -120,21 +120,28 @@ class ControlPoint {
     this.element.setAttribute("cy", y);
 
     if (this.armElement1) {
-      this.armElement1.setAttribute("x1", this.x);
-      this.armElement1.setAttribute("y1", this.y);
-      this.armElement1.setAttribute("x2", this.arm1.x);
-      this.armElement1.setAttribute("y2", this.arm1.y);
+      this._updateArm(1);
     }
-
     if (this.armElement2) {
-      this.armElement2.setAttribute("x1", this.x);
-      this.armElement2.setAttribute("y1", this.y);
-      this.armElement2.setAttribute("x2", this.arm2.x);
-      this.armElement2.setAttribute("y2", this.arm2.y);
+      this._updateArm(2);
     }
 
     if (this.path) {
       this.path.updatePath();
     }
+  }
+
+  _updateArm(n) {
+    const armElement = this[`armElement${n}`];
+    const arm = this[`arm${n}`];
+    const controlPoint = this[`controlPoint${n}`];
+
+    if (!armElement || !arm) return;
+    armElement.setAttribute("x1", this.x);
+    armElement.setAttribute("y1", this.y);
+    armElement.setAttribute("x2", arm.x);
+    armElement.setAttribute("y2", arm.y);
+    controlPoint.setAttribute("cx", arm.x);
+    controlPoint.setAttribute("cy", arm.y);
   }
 }

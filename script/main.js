@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add initial transforms
   addTransform(selectionBox, 0, 0);
   addTransform(pointsContainer, 0, 0);
+  addTransform(armsContainer, 0, 0);
 
   addActiveSpritePanelEventHandlers();
   initToolbar();

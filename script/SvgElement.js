@@ -155,6 +155,7 @@ class EditablePath {
     this.transform.setTranslate(dx, dy);
     translateElement(selectionBox, dx, dy);
     translateElement(pointsContainer, dx, dy);
+    translateElement(armsContainer, dx, dy);
   }
 
   translate(dx, dy) {
