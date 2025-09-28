@@ -6,9 +6,11 @@ class ControlPoint {
   }
 
   showPoint() {
-    this.element = createSVGElement('circle', { cx: this.x, cy: this.y, r: 5 });
-    this.element.addEventListener('mousedown', this.mouseDown.bind(this));
-    pointsContainer.appendChild(this.element);
+    if (!this.element) {
+      this.element = createSVGElement('circle', { cx: this.x, cy: this.y, r: 5 });
+      this.element.addEventListener('mousedown', this.mouseDown.bind(this));
+      pointsContainer.appendChild(this.element);
+    }
   }
 
   drag(event) {
@@ -22,6 +24,10 @@ class ControlPoint {
 
       if (this.path) {
         this.path.updatePath();
+      }
+
+      if (this.onUpdate) {
+        this.onUpdate();
       }
     }
   }
@@ -45,9 +51,9 @@ class ControlPoint {
   }
 
   updatePosition(x, y) {
-    // const dx = x - this.x;
-    // const dy = y - this.y;
-    // this.translate(dx, dy); 
+    const dx = x - this.x;
+    const dy = y - this.y;
+    this.translate(dx, dy); 
   }
 
   translate(dx, dy) {
@@ -79,6 +85,7 @@ class NodeControlPoint extends ControlPoint {
 
   addArm(armNum, x, y) {
     this.arms[armNum] = new ControlPoint(x, y, this.path);
+    this.arms[armNum].onUpdate = () => this.updateArmElement(armNum);
   }
 
   showPoint() {
@@ -105,34 +112,31 @@ class NodeControlPoint extends ControlPoint {
   }
 
   _createControlArmPoints() {
-    // armsContainer.innerHTML = '';
-    // if (this.arm1) {
-    //   this.controlPoint1 = this._createControlArmPoint(this.arm1);
-    // }
-    // if (this.arm2) {
-    //   this.controlPoint2 = this._createControlArmPoint(this.arm2);
-    // }
-  }
-
-  _createControlArmPoint(p){
-    // const controlPoint = createSVGElement('circle', { cx: p.x, cy: p.y, r: 4 });
-    // armsContainer.appendChild(controlPoint);
-    // return controlPoint;
+    armsContainer.innerHTML = '';
+    Object.values(this.arms).forEach(arm => {
+      arm.showPoint();
+    });
   }
 
   _translate(dx, dy) {
     // When control point moves, also move arms
-    Object.keys(this.arms).forEach(armNum => {
-      const arm = this.arms[armNum];
-      const armElement = this.armElements[armNum];
+    Object.values(this.arms).forEach(arm => {
       arm.translate(dx, dy);
-      armElement.setAttribute("x1", this.x);
-      armElement.setAttribute("y1", this.y);
-      armElement.setAttribute("x2", arm.x);
-      armElement.setAttribute("y2", arm.y);
     });
+
+    Object.keys(this.arms).forEach(this.updateArmElement.bind(this));
   }
 
+  updateArmElement(armNum) {
+    const arm = this.arms[armNum];
+    const armElement = this.armElements[armNum];
+    armElement.setAttribute("x1", this.x);
+    armElement.setAttribute("y1", this.y);
+    armElement.setAttribute("x2", arm.x);
+    armElement.setAttribute("y2", arm.y);
+  }
+
+  // Called when creating/scaling an ellipse
   updatePointAndArms(x, y, x1, y1, x2, y2) {
     this.x = x;
     this.y = y;
