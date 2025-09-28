@@ -134,10 +134,12 @@ class NodeControlPoint extends ControlPoint {
   updateArmElement(armNum) {
     const arm = this.arms[armNum];
     const armElement = this.armElements[armNum];
-    armElement.setAttribute("x1", this.x);
-    armElement.setAttribute("y1", this.y);
-    armElement.setAttribute("x2", arm.x);
-    armElement.setAttribute("y2", arm.y);
+    if (armElement) {
+      armElement.setAttribute("x1", this.x);
+      armElement.setAttribute("y1", this.y);
+      armElement.setAttribute("x2", arm.x);
+      armElement.setAttribute("y2", arm.y);
+    }
   }
 
   // Called when creating/scaling an ellipse

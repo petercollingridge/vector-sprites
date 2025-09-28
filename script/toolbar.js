@@ -88,11 +88,33 @@ function movePathPoint(event) {
   if (selectedElement) {
     const {x, y} = eventToSVGCoords(event);
     const points = selectedElement.points;
-    points[points.length - 1].updatePosition(x, y);
+    const n = points.length;
+    points[n - 1].updatePosition(x, y);
+
+    if (selectedElement.isCurved && n > 2) {
+      const p0 = points[n - 3];
+      const p1 = points[n - 2];
+      const p2 = points[n - 1];
+
+      let dx = 0.25 * (p2.x - p0.x);
+      let dy = 0.25 * (p2.y - p0.y);
+
+      if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+        if (n == 3) {
+          p0.addArm(1, p0.x - dy, p0.y + dx);
+          p0.addArm(2, p0.x + dy, p0.y - dx);
+        }
+        p1.addArm(1, p1.x - dx, p1.y - dy);
+        p1.addArm(2, p1.x + dx, p1.y + dy);
+        p2.addArm(1, p2.x + dy, p2.y - dx);
+        p2.addArm(2, p2.x - dy, p2.y + dx);
+      }
+    }
 
     selectedElement.updatePath();
 
-    if (points.length > 2) {
+    // Fill shape if path is closed
+    if (n > 2) {
       const fillShape = areClose(points[0], x, y);
       selectedElement.element.style['fill-opacity'] = fillShape ? 0.3 : 0;
     }
@@ -124,26 +146,6 @@ function addPathPoint(event) {
     }
     
     selectedElement.addPoint(x, y);
-    if (selectedElement.isCurved && n > 2) {
-      // Set control points for smooth curve
-      const p0 = points[n - 3];
-      const p1 = points[n - 2];
-      const p2 = points[n - 1];
-
-      console.log(points)
-
-      let dx = 0.25 * (p2.x - p0.x);
-      let dy = 0.25 * (p2.y - p0.y);
-
-      if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
-        p0.addArm(1, p0.x - dy, p0.y + dx);
-        p0.addArm(2, p0.x + dy, p0.y - dx);
-        p1.addArm(1, p1.x - dx, p1.y - dy);
-        p1.addArm(2, p1.x + dx, p1.y + dy);
-        p2.addArm(1, p2.x + dy, p2.y - dx);
-        p2.addArm(2, p2.x - dy, p2.y + dx);
-      }
-    }
     selectedElement.updatePath();
   }
 }
