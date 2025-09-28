@@ -124,11 +124,6 @@ class EditablePath {
     const points = [
       [p.minX, p.minY], [p.maxX, p.minY], [p.maxX, p.maxY], [p.minX, p.maxY]
     ];
-
-    // points.forEach((point) => {
-    //   const controlPoint = new ControlPoint(this.pointsContainer, point[0], point[1]);
-    //   this.points.push(controlPoint);
-    // });
   }
 
   // Create SVG element for this path's control points
@@ -138,7 +133,7 @@ class EditablePath {
     translateElement(pointsContainer, matrix.e, matrix.f);
 
     this.points.forEach((point) => {
-      point.createElement();
+      point.showPoint();
     });
   }
 
@@ -159,8 +154,6 @@ class EditablePath {
   }
 
   translate(dx, dy) {
-    // Move the points of the path so they are centred on the origin
-    // then translate back to its original position
     this.points.forEach((point) => {
       point.translate(dx, dy);
     });
