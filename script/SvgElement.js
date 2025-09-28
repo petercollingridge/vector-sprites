@@ -1,13 +1,13 @@
 // Wrapper for SVG element that allows it to be editable
 
 class EditablePath {
-  constructor(attrs) {
+  constructor(attrs, isCurved) {
     // Extract points and shift so they are centered on the origin
     this.points = dStringToControlPoints(attrs.d, this);
     this.mid = this.getMidPoint(this.points);
     // this.translate(-this.mid.x, -this.mid.y);
     this.closed = attrs.d.trim().endsWith('Z');
-    this.curved = attrs.d.includes('C');
+    this.isCurved = isCurved;
 
     // Create a new SVG node
     this.element = this._createElement(attrs);
@@ -30,7 +30,7 @@ class EditablePath {
   }
 
   addPoint(x, y) {
-    const point = new ControlPoint(x, y, this);
+    const point = new NodeControlPoint(x, y, this);
     this.points.push(point);
     this.updatePath();
   }
@@ -176,14 +176,15 @@ function createSvgObjectFromElements(elements) {
   // Update svgObject to contain new elements
   svgObject = Array.from(elements).map((element) => {
     const attrs = getAttrs(element);
-    return new EditablePath(attrs);
+    const isCurved = attrs.d.includes('C');
+    return new EditablePath(attrs, isCurved);
   });
   
   return svgObject;
 }
 
-function addPath(attrs) {
-  const element = new EditablePath(attrs);
+function addPathElement(attrs, isCurved) {
+  const element = new EditablePath(attrs, isCurved);
   svgObject.push(element);
   return element;
 }

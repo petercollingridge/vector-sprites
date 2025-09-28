@@ -51,9 +51,9 @@ class ControlPoint {
   }
 
   updatePosition(x, y) {
-    const dx = x - this.x;
-    const dy = y - this.y;
-    this.translate(dx, dy); 
+    this.x = x;
+    this.y = y;
+    this.setElementPosition();
   }
 
   translate(dx, dy) {
@@ -66,7 +66,7 @@ class ControlPoint {
     }
   }
 
-    // Update position of the control point element
+  // Update position of the control point element
   setElementPosition() {
     if (this.element) {
       this.element.setAttribute("cx", this.x);
@@ -84,8 +84,12 @@ class NodeControlPoint extends ControlPoint {
   }
 
   addArm(armNum, x, y) {
-    this.arms[armNum] = new ControlPoint(x, y, this.path);
-    this.arms[armNum].onUpdate = () => this.updateArmElement(armNum);
+    if (!this.arms[armNum]) {
+      this.arms[armNum] = new ControlPoint(x, y, this.path);
+      this.arms[armNum].onUpdate = () => this.updateArmElement(armNum);
+    } else {
+      this.arms[armNum].updatePosition(x, y);
+    }
   }
 
   showPoint() {

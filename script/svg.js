@@ -143,9 +143,7 @@ function clientToSVGCoords(x, y) {
   return pt.matrixTransform(svg.getScreenCTM().inverse());
 }
 
-function eventToSVGCoords(event) {
-  return clientToSVGCoords(event.clientX, event.clientY);
-}
+const eventToSVGCoords = (event) => clientToSVGCoords(event.clientX, event.clientY);
 
 function selectElement(element) {
   if (toolbarMode === 'Move') {
@@ -167,6 +165,8 @@ function deselectCurrentElement() {
 // Called when deselecting all elements
 function deselectElement() {
   deselectCurrentElement();
+  pointsContainer.innerHTML = '';
+  armsContainer.innerHTML = '';
   selectedElement = null;
   emptyEditElementPanel();
   selectionBox.style.display = 'none';

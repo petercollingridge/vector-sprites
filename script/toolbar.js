@@ -32,16 +32,10 @@ function addEllipse(event) {
   return addPath({d, ...newShapeStyles});
 }
 
-function addPolyline(event) {
-  toolbarMode = 'Adding polyline';
+function addPath(event, isCurved = false) {
+  toolbarMode = 'Move path point';
   const {x, y} = clientToSVGCoords(event);
-  return addPath({d: `M${x} ${y}`, ...newShapeStyles, 'fill-opacity': 0});
-}
-
-function addCurvedLine(event) {
-  toolbarMode = 'Adding curved line';
-  const {x, y} = clientToSVGCoords(event);
-  return addPath({d: `M${x} ${y}`, ...newShapeStyles, 'fill-opacity': 0});
+  return addPathElement({d: `M${x} ${y}`, ...newShapeStyles, 'fill-opacity': 0}, isCurved);
 }
 
 function dragSelectedElement(event) {
@@ -90,13 +84,14 @@ function scaleEllipse(event) {
 
 const areClose = (p, x, y, threshold = 4) => Math.hypot(p.x - x, p.y - y) <= threshold;
 
-function movePolylinePoint(event) {
+function movePathPoint(event) {
   if (selectedElement) {
     const {x, y} = eventToSVGCoords(event);
     const points = selectedElement.points;
     points[points.length - 1].updatePosition(x, y);
 
     selectedElement.updatePath();
+
     if (points.length > 2) {
       const fillShape = areClose(points[0], x, y);
       selectedElement.element.style['fill-opacity'] = fillShape ? 0.3 : 0;
@@ -104,13 +99,14 @@ function movePolylinePoint(event) {
   }
 }
 
-function addPathPoint(event, isCurved = false) {
+function addPathPoint(event) {
   if (selectedElement) {
     const {x, y} = eventToSVGCoords(event);
     const points = selectedElement.points;
     const n = points.length;
     const lastPoint = points[n - 1];
     lastPoint.updatePosition(x, y);
+
 
     if (n > 1) {
       // If last two points close then stop drawing line
@@ -125,26 +121,27 @@ function addPathPoint(event, isCurved = false) {
         selectedElement.updatePath();
         return endPolyline();
       }
-
     }
     
     selectedElement.addPoint(x, y);
-    if (isCurved && n > 2) {
+    if (selectedElement.isCurved && n > 2) {
       // Set control points for smooth curve
       const p0 = points[n - 3];
       const p1 = points[n - 2];
       const p2 = points[n - 1];
 
+      console.log(points)
+
       let dx = 0.25 * (p2.x - p0.x);
       let dy = 0.25 * (p2.y - p0.y);
 
-      if (dx > 0 || dy > 0) {
-        p0.arm1 = { x: p0.x - dy, y: p0.y + dx };
-        p0.arm2 = { x: p0.x + dy, y: p0.y - dx };
-        p1.arm1 = { x: p1.x - dx, y: p1.y - dy };
-        p1.arm2 = { x: p1.x + dx, y: p1.y + dy };
-        p2.arm1 = { x: p2.x + dy, y: p2.y - dx };
-        p2.arm2 = { x: p2.x - dy, y: p2.y + dx };
+      if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+        p0.addArm(1, p0.x - dy, p0.y + dx);
+        p0.addArm(2, p0.x + dy, p0.y - dx);
+        p1.addArm(1, p1.x - dx, p1.y - dy);
+        p1.addArm(2, p1.x + dx, p1.y + dy);
+        p2.addArm(1, p2.x + dy, p2.y - dx);
+        p2.addArm(2, p2.x - dy, p2.y + dx);
       }
     }
     selectedElement.updatePath();
@@ -160,8 +157,8 @@ const mouseDownFunctions = {
   'Move': deselectElement,
   'Add rectangle': addRect,
   'Add ellipse': addEllipse,
-  'Add polyline': addPolyline,
-  'Add curved line': addCurvedLine,
+  'Add polyline': (evt) => addPath(evt),
+  'Add curved line': (evt) => addPath(evt, true),
 };
 
 const mouseMoveFunctions = {
@@ -169,8 +166,7 @@ const mouseMoveFunctions = {
   'Edit points': dragSelectedElement,
   'Add rectangle': scaleRect,
   'Add ellipse': scaleEllipse,
-  'Adding polyline': movePolylinePoint,
-  'Adding curved line': movePolylinePoint,
+  'Move path point': movePathPoint,
 };
 
 function mouseDownOnSVG(event) {
@@ -194,10 +190,8 @@ function mouseUpOnSVG(event) {
   }
 
   dragOffset = false;
-  if (toolbarMode === 'Adding polyline') {
+  if (toolbarMode === 'Move path point') {
     addPathPoint(event);
-  } else if (toolbarMode === 'Adding curved line') {
-    addPathPoint(event, true);
   } else {
     updatePreview();
   }
