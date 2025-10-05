@@ -60,6 +60,14 @@ function deletePreview() {
   selectSprite(selectedPreview)
 }
 
+function saveAsSVG() {
+  const spritePreviews = document.querySelectorAll('.sprite-preview');
+  const spritePreview = spritePreviews[selectedPreview];
+  const previewSVG = spritePreview.querySelector('svg');
+  console.log(previewSVG.innerHTML);
+
+}
+
 // Create the initial preview SVG with example shapes
 function createInitialSVG(container) {
   const svgElement = container.querySelector('svg');
