@@ -19,7 +19,7 @@ function initToolbar() {
 function addRect(event) {
   const {x, y} = eventToSVGCoords(event);
   const d = `M${x} ${y} L${x + 1} ${y} L${x + 1} ${y + 1} L${x} ${y + 1} Z`;
-  return addPath({d, ...newShapeStyles});
+  return addPathElement({d, ...newShapeStyles});
 }
 
 function addEllipse(event) {
@@ -29,7 +29,7 @@ function addEllipse(event) {
   d += ` C0 0 0 0 ${x + 1} ${y + 1}`;
   d += ` C0 0 0 0 ${x} ${y + 1}`;
   d += ` C0 0 0 0 ${x} ${y} Z`;
-  return addPath({d, ...newShapeStyles});
+  return addPathElement({d, ...newShapeStyles}, true);
 }
 
 function addPath(event, isCurved = false) {
@@ -96,18 +96,46 @@ function movePathPoint(event) {
       const p1 = points[n - 2];
       const p2 = points[n - 1];
 
-      let dx = 0.25 * (p2.x - p0.x);
-      let dy = 0.25 * (p2.y - p0.y);
+      // Midpoint between p0 and p2
+      const mx = 0.5 * (p0.x + p2.x);
+      const my = 0.5 * (p0.y + p2.y);
 
-      if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+      // Vector from p1 to midpoint
+      const vx = mx - p1.x;
+      const vy = my - p1.y;
+      const d = Math.hypot(vx, vy);
+
+      if (d > 0) {
+        // Perpendicular unit vector
+        const ux = vy / d;
+        const uy = -vx / d;
+
+        const dx1 = p1.x - p0.x;
+        const dy1 = p1.y - p0.y;
+        const dx2 = p2.x - p1.x;
+        const dy2 = p2.y - p1.y;
+
+        const dot1 = dx1 * ux + dy1 * uy;
+        const dot2 = dx2 * ux + dy2 * uy;
+
+        // Corner points
+        const c1x = p1.x - ux * dot1;
+        const c1y = p1.y - uy * dot1;
+        const c2x = p1.x + ux * dot2;
+        const c2y = p1.y + uy * dot2;
+
+        const scale = 0.5; // Adjust this factor to change arm length
+
         if (n == 3) {
-          p0.addArm(1, p0.x - dy, p0.y + dx);
-          p0.addArm(2, p0.x + dy, p0.y - dx);
+          p0.addArm(1, p0.x - 0.5 * (c1x - p0.x), p0.y - 0.5 * (c1y - p0.y));
+          p0.addArm(2, p0.x + 0.5 * (c1x - p0.x), p0.y + 0.5 * (c1y - p0.y));
         }
-        p1.addArm(1, p1.x - dx, p1.y - dy);
-        p1.addArm(2, p1.x + dx, p1.y + dy);
-        p2.addArm(1, p2.x + dy, p2.y - dx);
-        p2.addArm(2, p2.x - dy, p2.y + dx);
+
+        p1.addArm(1, p1.x - ux * dot1 * scale, p1.y - uy * dot1 * scale);
+        p1.addArm(2, p1.x + ux * dot2 * scale, p1.y + uy * dot2 * scale);
+
+        p2.addArm(1, p2.x + 0.5 * (c2x - p2.x), p2.y + 0.5 * (c2y - p2.y));
+        p2.addArm(2, p2.x - 0.5 * (c2x - p2.x), p2.y - 0.5 * (c2y - p2.y));
       }
     }
 
@@ -133,6 +161,7 @@ function addPathPoint(event) {
     if (n > 1) {
       // If last two points close then stop drawing line
       if (areClose(points[n - 2], x, y)) {
+        selectedElement.points.splice(n - 1, 1);
         return endPolyline();
       }
 
@@ -140,7 +169,6 @@ function addPathPoint(event) {
       if (areClose(points[0], x, y)) {
         selectedElement.closed = true;
         selectedElement.points.splice(n - 1, 1);
-        selectedElement.updatePath();
         return endPolyline();
       }
     }
@@ -152,6 +180,7 @@ function addPathPoint(event) {
 
 function endPolyline() {
   toolbarMode = 'Add polyline';
+  selectedElement.updatePath();
   updatePreview();
 }
 
