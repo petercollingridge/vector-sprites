@@ -64,8 +64,60 @@ function saveAsSVG() {
   const spritePreviews = document.querySelectorAll('.sprite-preview');
   const spritePreview = spritePreviews[selectedPreview];
   const previewSVG = spritePreview.querySelector('svg');
-  console.log(previewSVG.innerHTML);
 
+  const serializer = new XMLSerializer();
+  const svgString = serializer.serializeToString(previewSVG);
+  const blob = new Blob([svgString], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'sprite.svg';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function saveAsPNG() {
+  const spritePreviews = document.querySelectorAll('.sprite-preview');
+  const spritePreview = spritePreviews[selectedPreview];
+  const previewSVG = spritePreview.querySelector('svg');
+  
+  // Convert SVG into an image string
+  const serializer = new XMLSerializer();
+  const svgString = serializer.serializeToString(previewSVG);
+
+  const svgBlob = new Blob([svgString], {
+    type: 'image/svg+xml;charset=utf-8',
+  });
+  const DOM_URL = window.URL || window.webkitURL || window;
+  const url = DOM_URL.createObjectURL(svgBlob);
+
+  // Draw image to canvas
+  const canvas = document.createElement('canvas');
+  const viewBox = previewSVG.viewBox.baseVal;
+  const img = new Image();
+  img.src = url;
+
+  img.onload = function () {
+    canvas.width = viewBox.width;
+    canvas.height = viewBox.height;
+    canvas.getContext('2d').drawImage(img, 0, 0, viewBox.width, viewBox.height);
+    DOM_URL.revokeObjectURL(url);
+
+    // Create hidden download link that links to the new image
+    const MIME_TYPE = 'image/png';
+    const dlLink = document.createElement('a');
+    dlLink.download = 'test.png';
+    dlLink.href = canvas.toDataURL(MIME_TYPE).replace(MIME_TYPE, 'image/octet-stream');
+    dlLink.dataset.downloadurl = [MIME_TYPE, dlLink.download, dlLink.href].join(':');
+
+    // Create the link, click it and then remove it
+    document.body.appendChild(dlLink);
+    dlLink.click();
+    document.body.removeChild(dlLink);
+  };
 }
 
 // Create the initial preview SVG with example shapes
