@@ -75,8 +75,11 @@ class EditablePath {
       // deselectCurrentElement();
       selectedElement = this;
       this.element.style.cursor = 'move';
+
       // Hide control points
       pointsContainer.innerHTML = '';
+      armsContainer.innerHTML = '';
+
       const matrix = this.transform.matrix;
       this.dragOffset = {
         x: event.clientX - matrix.e,
@@ -128,7 +131,9 @@ class EditablePath {
 
   // Create SVG element for this path's control points
   showControlPoints() {
-    pointsContainer.innerHTML = '';
+    // Hide all other control points
+    armsContainer.innerHTML = '';
+
     const matrix = this.transform.matrix;
     translateElement(pointsContainer, matrix.e, matrix.f);
 

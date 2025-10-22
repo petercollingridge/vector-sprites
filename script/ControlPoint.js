@@ -5,11 +5,13 @@ class ControlPoint {
     this.path = path;
   }
 
-  showPoint() {
+  showPoint(container = pointsContainer) {
     if (!this.element) {
       this.element = createSVGElement('circle', { cx: this.x, cy: this.y, r: 5 });
       this.element.addEventListener('mousedown', this.mouseDown.bind(this));
-      pointsContainer.appendChild(this.element);
+      container.appendChild(this.element);
+    } else if (this.element.parentNode !== container) {
+      container.appendChild(this.element);
     }
   }
 
@@ -92,7 +94,13 @@ class NodeControlPoint extends ControlPoint {
     }
   }
 
-  showPoint() {
+  _mouseDown() {
+    this._createControlArms();
+  }
+
+  _createControlArms() {
+    armsContainer.innerHTML = '';
+
     Object.values(this.arms).forEach((arm, index) => {
       const armElement = createSVGElement('line', {
         x1: this.x,
@@ -103,22 +111,8 @@ class NodeControlPoint extends ControlPoint {
         'stroke-width': 1
       });
       this.armElements[index + 1] = armElement;
-      pointsContainer.appendChild(armElement);
-    });
-
-    this.element = createSVGElement('circle', { cx: this.x, cy: this.y, r: 5 });
-    this.element.addEventListener('mousedown', this.mouseDown.bind(this));
-    pointsContainer.appendChild(this.element);
-  }
-
-  _mouseDown() {
-    this._createControlArmPoints();
-  }
-
-  _createControlArmPoints() {
-    armsContainer.innerHTML = '';
-    Object.values(this.arms).forEach(arm => {
-      arm.showPoint();
+      armsContainer.appendChild(armElement);
+      arm.showPoint(armsContainer);
     });
   }
 
