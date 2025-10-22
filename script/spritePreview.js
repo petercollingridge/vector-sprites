@@ -79,14 +79,10 @@ function saveAsSVG() {
   URL.revokeObjectURL(url);
 }
 
-function saveAsPNG() {
-  const spritePreviews = document.querySelectorAll('.sprite-preview');
-  const spritePreview = spritePreviews[selectedPreview];
-  const previewSVG = spritePreview.querySelector('svg');
-  
+function saveAsPNG(svg, filename) {  
   // Convert SVG into an image string
   const serializer = new XMLSerializer();
-  const svgString = serializer.serializeToString(previewSVG);
+  const svgString = serializer.serializeToString(svg);
 
   const svgBlob = new Blob([svgString], {
     type: 'image/svg+xml;charset=utf-8',
@@ -96,7 +92,7 @@ function saveAsPNG() {
 
   // Draw image to canvas
   const canvas = document.createElement('canvas');
-  const viewBox = previewSVG.viewBox.baseVal;
+  const viewBox = svg.viewBox.baseVal;
   const img = new Image();
   img.src = url;
 
@@ -109,7 +105,7 @@ function saveAsPNG() {
     // Create hidden download link that links to the new image
     const MIME_TYPE = 'image/png';
     const dlLink = document.createElement('a');
-    dlLink.download = 'test.png';
+    dlLink.download = `${filename}.png`;
     dlLink.href = canvas.toDataURL(MIME_TYPE).replace(MIME_TYPE, 'image/octet-stream');
     dlLink.dataset.downloadurl = [MIME_TYPE, dlLink.download, dlLink.href].join(':');
 
@@ -118,6 +114,21 @@ function saveAsPNG() {
     dlLink.click();
     document.body.removeChild(dlLink);
   };
+}
+
+function saveAllImagesAsPng(filenamePrefix) {
+  document.querySelectorAll('.sprite-preview').forEach((spritePreview, index) => {
+    const svg = spritePreview.querySelector('svg');
+    const filename = filenamePrefix ? `${filenamePrefix}-${index}` : `sprite-${index}`;
+    saveAsPNG(svg, filename);
+  });
+}
+
+function openSaveAsPngDialogue() {
+  const filename = prompt('Enter filename for PNG (without extension):', 'sprite');
+  if (filename !== null) {
+    saveAllImagesAsPng(filename);
+  }
 }
 
 // Create the initial preview SVG with example shapes
